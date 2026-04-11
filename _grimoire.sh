@@ -115,6 +115,8 @@
 # 17. hostname ; show system hostname
 # 18. hostnamectl set-hostname NAME ; change hostname
 # 19. sudo dpkg-reconfigure keyboard-configuration
+# 20. setxkbmap -option keypad:pointerkeys
+# 21. apt install firefox-esr 
 
 # Inventory [ System Tools ] { Linux Bash }
 # 1. apt update ; refresh package list
@@ -251,7 +253,26 @@
 # 33. picom --config ~/.config/picom.conf & ; Start picom with explicit config file
 
 # Inventory [ Sway WM and Compositor ] { Linux }
-# sudo apt install sway
+# 1. sudo apt install sway
+#    -> Installs the core Sway window manager and Wayland compositor.
+# 2. sudo apt install swaybg
+#    -> Wallpaper utility for Sway (sets background images).
+# 3. sudo apt install swayidle
+#    -> Idle management daemon (handles screen blanking, suspend, etc.).
+# 4. sudo apt install swaylock
+#    -> Screen locker for Sway (secure lock screen).
+# 5. sudo apt install waybar
+#    -> Modern status bar for Wayland compositors (battery, network, clock, etc.).
+# 6. sudo apt install alacritty
+#    -> GPU-accelerated terminal emulator (fast and lightweight).
+#    -> Alternatives: xterm, gnome-terminal, kitty.
+# 7. sudo apt install xwayland
+#    -> Compatibility layer to run legacy X11 applications under Wayland.
+# 8. sudo apt install fonts-dejavu
+#    -> Common font set for proper text rendering.
+# 9. mkdir -p ~/.config/sway
+#    cp /etc/sway/config ~/.config/sway/
+#    -> Copies default config for customization (keybindings, bar, wallpaper).
 
 # Inventory [ Filesystem Operations ] { Linux Bash }
 # 1. pwd ; print current directory
