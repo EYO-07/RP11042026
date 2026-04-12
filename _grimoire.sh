@@ -110,13 +110,20 @@
 # 12. groups USERNAME ; show groups of user
 # 13. su USERNAME ; switch user (keep environment)
 # 14. su - ; switch to root with full login shell
-# 15. sudo COMMAND ; run command as root
+# 15. sudo COMMAND ; run command as root, sudo need to be installed first!
 # 16. sudo -i ; open root login shell via sudo
 # 17. hostname ; show system hostname
 # 18. hostnamectl set-hostname NAME ; change hostname
 # 19. sudo dpkg-reconfigure keyboard-configuration
 # 20. setxkbmap -option keypad:pointerkeys
-# 21. apt install firefox-esr 
+
+# Inventory [ Installation of Basic Tools ] { Linux Bash }
+# -> apt install xorg menu dbus-x11
+# -> nano /etc/apt/sources.list ; change source list 
+
+# Inventory [ Installation of Basic Tools After WM ] { Linux Bash }
+# -> apt install firefox-esr 
+# -> apt install gpg wget apt-transport-https
 
 # Inventory [ System Tools ] { Linux Bash }
 # 1. apt update ; refresh package list
@@ -161,7 +168,7 @@
 # 8. nano ~/.xinitrc ; edit X session startup file
 # 9. chmod +x ~/.xinitrc ; ensure executable (optional)
 # 10. Ctrl+Alt+Backspace ; terminate X session (if enabled)
-# 11. apt install wayland ; install Wayland protocol (rarely standalone)
+# 11. apt install xwayland ; install Wayland protocol (rarely standalone)
 # 12. echo $DISPLAY ; check active X display
 # 13. export DISPLAY=:0 ; manually set display
 # 14. xdpyinfo ; show X server information
