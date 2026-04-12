@@ -117,6 +117,8 @@
 # 16. sudo -i ; open root login shell via sudo
 # 17. hostname ; show system hostname
 # 18. hostnamectl set-hostname NAME ; change hostname
+# -> lsblk -l ; to see the names of mounting points
+# -> udiskctl mount -b /dev/sda1 ; sda1 should be the correct name of the drive 
 
 # Inventory [ Keyboard Settings ] { Linux Bash }
 # -> sudo dpkg-reconfigure keyboard-configuration
