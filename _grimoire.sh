@@ -30,6 +30,9 @@
 # * Considering a simple (/boot+/+/swap) partition scheme, how much space is recommended for / ? 100 GB
 # * How safe is to shrink a in-use partition in ssd to create new partitions ? 
 # * How to prevent linux to mess with another ssd os ? Create a dedicated /boot/efi partition on the ssd 
+# -> lsblk -f ; check mounted partitions
+# -> cat /etc/fstab ; check mounted partitions
+# -> cd /boot/efi && efibootmgr -v ; check boot/efi 
 
 # Inventory [ Linux Initialization & Configuration Files ]
 #
@@ -157,7 +160,7 @@
 # 29. kill PID ; terminate process
 # 30. kill -9 PID ; force terminate process
 
-# Inventory [ Install/Use Graphical Server ] { Linux Bash }
+# Inventory [ Graphical Server ] { Linux Bash }
 # 1. apt install xorg ; install X11 graphical server
 # 2. apt install xserver-xorg-core ; install core X server only
 # 3. apt install xinit ; install startx utility
@@ -175,6 +178,33 @@
 # 15. xrandr ; manage screen resolution
 # 16. xset -dpms ; disable screen blanking
 # 17. xset s off ; disable screen saver
+
+# Inventory [ Graphical Drivers ] { Linux Bash }
+# -> /etc/apt/sources.list should have contrib non-free-firmware on each line 
+# -> apt install firmware-linux firmware-linux-nonfree firmware-misc-nonfree
+# -> apt install nvidia-detect 
+# -> apt install nvidia-driver 
+# -> apt install xserver-xorg-video-amdgpu 
+# -> cat /sys/module/nvidia_drm/parameters/modeset ; verify if DRM is enable, which is necessary for dual-mode 
+# -> nano /etc/default/grub ; add GRUB_CMDLINE_LINUX_DEFAULT="quiet splash nvidia-drm.modeset=1" to activate dual-mode and do update-grub reboot 
+# -> xrandr --listproviders
+# -> xrandr --query 
+# -> xrandr --setprovideroutputsource provider1 provider2 
+# -> xrandr --output DP-1 --auto --right-of HDMI-1
+# -> xrandr --output DISPLAY1 --primary --auto --output DISPLAY2 --auto --right-of DISPLAY1 ; dual mode monitor 
+
+# Inventory [ i3 initialization config ] { Linux Bash }
+# -> setxkbmap -option keypad:pointerkeys ; for mouse keyboard control 
+# -> exec_always --no-startup-id COMMAND ; put this to execute always on startx 
+
+# Inventory [ Audio Server ] { Linux Bash }
+# -> apt install alsa-utils ; basic sound utilities 
+# -> apt install pipewire pipewire-audio-client-libraries wireplumber
+# -> aplay -l ; list devices 
+# -> amixer scontrols ; query 
+# -> wpctl status ; query after initialization of pipewire wireplumber pipewire-pulse servers 
+# -> systemctl --user status pipewire pipewire-pulse wireplumber ; checks if systemd is initializing the sound servers 
+# -> speaker-test -c 2 -D pulse ; test the sound server 
 
 # Inventory [ xdotool ] { Linux }
 # 1. xdotool mousemove X Y ; Move mouse to absolute screen position (pixels)
