@@ -117,8 +117,12 @@
 # 16. sudo -i ; open root login shell via sudo
 # 17. hostname ; show system hostname
 # 18. hostnamectl set-hostname NAME ; change hostname
-# 19. sudo dpkg-reconfigure keyboard-configuration
-# 20. setxkbmap -option keypad:pointerkeys
+
+# Inventory [ Keyboard Settings ] { Linux Bash }
+# -> sudo dpkg-reconfigure keyboard-configuration
+# -> setxkbmap -query 
+# -> setxkbmap br ; to change keyboard layout to br 
+# -> setxkbmap -option keypad:pointerkeys
 
 # Inventory [ Installation of Basic Tools ] { Linux Bash }
 # -> apt install xorg menu dbus-x11
