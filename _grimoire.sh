@@ -209,6 +209,7 @@
 # -> aplay -l ; list devices 
 # -> amixer scontrols ; query 
 # -> wpctl status ; query after initialization of pipewire wireplumber pipewire-pulse servers 
+# -> wpctl set-default ID ; change the default sink (output hardware)
 # -> systemctl --user status pipewire pipewire-pulse wireplumber ; checks if systemd is initializing the sound servers 
 # -> speaker-test -c 2 -D pulse ; test the sound server 
 
