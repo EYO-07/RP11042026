@@ -1,9 +1,6 @@
+// {TextMarker|cyan:>>>,<<<,TODO|red:ISSUE|yellow:INCOMPLETE,DEPRECATED|silver:SCULPT}
 // -- BEGIN 
-// Qt6 Hello World 
-
-// ! - autocompletion
-// ! - find keyword
-// ! - custom textmarkers 
+// GOLEM main.cpp 
 
 #include <QApplication>
 #include <QPushButton>
@@ -30,28 +27,33 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
     QMainWindow* window = new QMainWindow();
     QSplitter* splitter = TabbedSplitView::tabbedSplitView(window);
+    QTabWidget* ltabs = TabbedSplitView::getTabsByName(splitter, "leftTabs");
+    QTabWidget* rtabs = TabbedSplitView::getTabsByName(splitter, "rightTabs");
     QsciScintilla* helpPage = addLeftTab_Scintilla(splitter, "?"); 
+    QsciScintilla* clipboardPage = addRightTab_Scintilla(splitter, "..."); 
     helpPage->setText(
         "// Notepad--LinuxQt : ported version of Notepad-- using Qt6 QScintilla \n"
         "// ... lesser version of Notepad++, less language support, fixed dark theme. \n"
         "// ... it's bit different from Notepad-- ... \n"
         "// ... don't like it? use Notepadqq instead (or Nano, or Geany, or Vim ...) \n"
         "\n"
+        "// Text Marker Syntax {TextMarker|yellow:editor}\n"
+        "\n"
         "1. [ TabTitle ] // ReadOnly tab, use Ctrl+R to change ReadOnly flag, by default the file opens on readonly mode \n"
         "2. * TabTitle // Is the editor text modified flag \n"
         "\n"
         "// Commands \n"
         "1. Ctrl+R // change readonly flag \n"
-        "2. Ctrl+N // add an empty tab \n"
-        "3. Ctrl+L // load file \n"
-        "4. Ctrl+S // save file \n"
-        "5. Ctrl+W // close tab \n"
+        "2. Ctrl+L // load file \n"
+        "3. Ctrl+S // save file and update the Text Markers \n"
+        "4. Ctrl+W // close tab \n"
         "\n"
         "1. Ctrl+Tab, Ctrl+Shift+Tab // Change Selected Tab from Current Tab Set \n"
         "\n"
         "1. Alt+V // Switch view for current tab \n"
         "2. Alt+Left, Alt+Right // Focus the Left or Right current tab \n"
     );
+    clipboardPage->setText("// Draft | Clipboard | Log");
     helpPage->setFocus();
     { // Layout 
         // load files by argument options
@@ -93,11 +95,98 @@ int main(int argc, char *argv[]) {
         CodexIncantation::applyDarkTheme(window);
     }
     { // Logic 
-        CodexIncantation::interceptKeyboardEvents(window, [splitter](QKeyEvent* e) -> bool {
+        CodexIncantation::interceptKeyboardEvents(window, [splitter,ltabs,rtabs](QKeyEvent* e) -> bool {
             if (e->modifiers() == Qt::ControlModifier) {
                 if (e->key() == Qt::Key_N) {
+                    return true; // DEPRECATED
                     addLeftTab_Scintilla(splitter, QString("(%1) ...").arg(index_new_tab));
                     index_new_tab++;
+                    return true;
+                }
+                if (e->key() == Qt::Key_L) {
+                    QsciScintilla* newEditor = TabbedSplitView::dialogScintillaTabLoad(ltabs);
+                    if (!newEditor) return true;
+                    darkTabScintillaLogic(newEditor);
+                    return true;
+                }
+            } else if (e->modifiers() == Qt::AltModifier) {
+                if (e->key() == Qt::Key_Left) {
+                    int l_currentTab = ltabs->currentIndex();
+                    if (l_currentTab==-1) return true;
+                    QWidget* lwdg = ltabs->widget(l_currentTab);
+                    if (!lwdg) return true;
+                    lwdg->setFocus();
+                    return true;
+                }
+                if (e->key() == Qt::Key_Right) {
+                    int r_currentTab = rtabs->currentIndex();
+                    if (r_currentTab==-1) return true;
+                    QWidget* rwdg = rtabs->widget(r_currentTab);
+                    if (!rwdg) return true;
+                    rwdg->setFocus();
+                    return true;
+                }
+            }
+            return false;
+        });
+        CodexIncantation::interceptKeyboardEvents(ltabs, [splitter,ltabs,rtabs](QKeyEvent* e) -> bool {
+            if (e->modifiers() == Qt::AltModifier) {
+                if (e->key() == Qt::Key_Left) {
+                    int l_currentTab = ltabs->currentIndex();
+                    if (l_currentTab==-1) return true;
+                    QWidget* lwdg = ltabs->widget(l_currentTab);
+                    if (!lwdg) return true;
+                    lwdg->setFocus();
+                    return true;
+                }
+                if (e->key() == Qt::Key_Right) {
+                    int r_currentTab = rtabs->currentIndex();
+                    if (r_currentTab==-1) return true;
+                    QWidget* rwdg = rtabs->widget(r_currentTab);
+                    if (!rwdg) return true;
+                    rwdg->setFocus();
+                    return true;
+                }
+            }
+            return false;
+        });
+        CodexIncantation::interceptKeyboardEvents(rtabs, [splitter,ltabs,rtabs](QKeyEvent* e) -> bool {
+            if (e->modifiers() == Qt::AltModifier) {
+                if (e->key() == Qt::Key_Left) {
+                    int l_currentTab = ltabs->currentIndex();
+                    if (l_currentTab==-1) return true;
+                    QWidget* lwdg = ltabs->widget(l_currentTab);
+                    if (!lwdg) return true;
+                    lwdg->setFocus();
+                    return true;
+                }
+                if (e->key() == Qt::Key_Right) {
+                    int r_currentTab = rtabs->currentIndex();
+                    if (r_currentTab==-1) return true;
+                    QWidget* rwdg = rtabs->widget(r_currentTab);
+                    if (!rwdg) return true;
+                    rwdg->setFocus();
+                    return true;
+                }
+            }
+            return false;
+        });
+        CodexIncantation::interceptKeyboardEvents(splitter, [splitter,ltabs,rtabs](QKeyEvent* e) -> bool {
+            if (e->modifiers() == Qt::AltModifier) {
+                if (e->key() == Qt::Key_Left) {
+                    int l_currentTab = ltabs->currentIndex();
+                    if (l_currentTab==-1) return true;
+                    QWidget* lwdg = ltabs->widget(l_currentTab);
+                    if (!lwdg) return true;
+                    lwdg->setFocus();
+                    return true;
+                }
+                if (e->key() == Qt::Key_Right) {
+                    int r_currentTab = rtabs->currentIndex();
+                    if (r_currentTab==-1) return true;
+                    QWidget* rwdg = rtabs->widget(r_currentTab);
+                    if (!rwdg) return true;
+                    rwdg->setFocus();
                     return true;
                 }
             }
@@ -132,9 +221,24 @@ void darkTabScintillaLogic(QsciScintilla* view) {
                 view->foldAll(true);
                 return true; // Stop event propagation
             }
-            if (e->key() == Qt::Key_A) {}
-            if (e->key() == Qt::Key_S) {}
-            if (e->key() == Qt::Key_D) {}
+            if (e->key() == Qt::Key_A) {
+                QSplitter* splitter = CodexIncantation::findClosestParent<QSplitter>(tabs);
+                if (!splitter) return true;
+                CodexIncantation::moveSeparator(splitter, -5);
+                return true;
+            }
+            if (e->key() == Qt::Key_S) {
+                QSplitter* splitter = CodexIncantation::findClosestParent<QSplitter>(tabs);
+                if (!splitter) return true;
+                CodexIncantation::toggleOrientation(splitter);
+                return true;
+            }
+            if (e->key() == Qt::Key_D) {
+                QSplitter* splitter = CodexIncantation::findClosestParent<QSplitter>(tabs);
+                if (!splitter) return true;
+                CodexIncantation::moveSeparator(splitter, 5);
+                return true;
+            }
             if (e->key() == Qt::Key_Up) {}
             if (e->key() == Qt::Key_Down) {}
             if (e->key() == Qt::Key_Left) {
@@ -188,6 +292,7 @@ void darkTabScintillaLogic(QsciScintilla* view) {
             }
             if (e->key() == Qt::Key_S) {
                 if (!tabs) return true;
+                CodexIncantation::applyIndicatorsFromTextDirectives(view);
                 QVariant data = tabs->tabBar()->tabData(currentTab);
                 if(data.isNull() || !data.isValid()) return true;
                 QString absPath = data.value<QString>();
@@ -254,6 +359,9 @@ void darkTabScintillaLogic(QsciScintilla* view) {
         if (!tabs) return;
         int currentTab = tabs->currentIndex();
         if (currentTab == -1) return;
+        // update autocompletion words 
+        CodexIncantation::updateAutocompletion_Range(view);
+        // update tab label
         QVariant data = tabs->tabBar()->tabData(currentTab);
         if(data.isNull() || !data.isValid()) return;
         QString prev_tab_text = tabs->tabText(currentTab);

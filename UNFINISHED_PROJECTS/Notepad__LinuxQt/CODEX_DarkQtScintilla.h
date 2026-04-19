@@ -5,6 +5,8 @@
 #include <Qsci/qsciscintillabase.h>
 #include <Qsci/qsciscintilla.h>
 #include <Qsci/qscilexer.h>
+#include <Qsci/qsciapis.h>
+// --
 #include <Qsci/qscilexercpp.h>
 #include <Qsci/qscilexerpython.h>
 #include <Qsci/qscilexerjava.h>
@@ -22,19 +24,26 @@
 #include <Qsci/qscilexeryaml.h>
 #include <Qsci/qscilexerproperties.h>
 #include <Qsci/qscilexerperl.h>
-
+// --
 #include <QColor>
 #include <QObject>
 #include <QMessageBox>
 #include <QSplitter>
+#include <QRegularExpression>
+#include <QStringList>
+#include <algorithm>
 
 namespace CodexIncantation {
     // functions
     QsciScintilla* newDarkScintilla(QWidget *parent = nullptr, QString fileName = "dummy.cpp");
-    // void setGlobalFont(QsciScintilla *editor, const QString &family, int pointSize);
     void toggleCurrentFold(QsciScintilla *editor);
     bool setLexer(QsciScintilla* editor, QString fileName);
     bool setLexerFolding(QsciScintilla* editor, QString fileName);
+    void setAutocompletion(QsciScintilla* editor);
+    void updateAutocompletion_Range(QsciScintilla* editor);
+    void updateAutocompletion_Full(QsciScintilla* editor);
+    QString getCurrentTypingWord(QsciScintilla* editor);
+    void applyIndicatorsFromTextDirectives(QsciScintilla* editor);
     // functions || events
     void onTextChange(QsciScintilla* editor, std::function<void(QsciScintilla*)> logic);
     // -- 
@@ -49,7 +58,6 @@ namespace CodexIncantation {
         bool isFileAlreadyOpened(QTabWidget* currentTabs, QString absFilepath);
     }
 }
-
 
 #endif // CODEX_DarkQtScintilla_H
 

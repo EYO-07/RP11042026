@@ -1,3 +1,4 @@
+// {TextMarker|cyan:>>>,<<<,TODO|red:ISSUE|yellow:INCOMPLETE,DEPRECATED}
 // -- BEGIN 
 // CODEX_DarkQtScintilla.cpp
 #include "CODEX_DarkQtScintilla.h"
@@ -47,6 +48,8 @@ QSet<QString> FILE_EXT_LEXER_LUA = {"lua"};
 QSet<QString> FILE_EXT_LEXER_MARKDOWN = {"md", "markdown"};
 QSet<QString> FILE_EXT_LEXER_YAML = {"yaml", "yml"};
 QSet<QString> FILE_EXT_LEXER_INI = {"ini", "cfg", "conf"};
+QHash<QsciScintilla*, QHash<QString, QVariant>> SCINTILLA_DATA;
+QRegularExpression directiveRegex(R"(\{TextMarker\|([^}]+)\})");
 
 // ===================================================================================
 
@@ -79,6 +82,33 @@ void lexerPostSettings(QsciScintilla* editor) {
     editor->setFont(FONT);
     editor->SendScintilla(QsciScintilla::SCI_SETEXTRAASCENT, 0);
     editor->SendScintilla(QsciScintilla::SCI_SETEXTRADESCENT, 0);
+    // 1. Set the selection background color (e.g., a nice blue)
+    //QColor selBack("#264f78"); 
+    //editor->SendScintilla(QsciScintilla::SCI_SETLISTSELBACK, selBack.rgb());
+    // 2. Set the selection foreground color (e.g., white text)
+    //QColor selFore("#ffffff");
+    //editor->SendScintilla(QsciScintilla::SCI_SETLISTSELFORE, selFore.rgb());
+}
+void registerEditor(QsciScintilla* editor) {
+    if (!editor) return;
+    if ( SCINTILLA_DATA.contains(editor) ) return;
+    // SCINTILLA_DATA[editor] = QHash<QString, QVariant>(); // not necessary
+    QObject::connect(editor, &QObject::destroyed, [editor]() {
+        SCINTILLA_DATA.remove(editor);
+    });
+}
+void clearIndicators(QsciScintilla* editor) {
+    for (int id = 8; id <= 20; ++id) {
+        editor->clearIndicatorRange(0, 0, editor->lines() - 1, editor->lineLength(editor->lines() - 1), id);
+    }
+}
+void setIndicator(QsciScintilla* editor, int indicatorId, QColor color) { // ISSUE full box missing bottom line 
+    editor->indicatorDefine(QsciScintilla::StraightBoxIndicator, indicatorId);
+    editor->setIndicatorForegroundColor(color, indicatorId);
+    editor->SendScintilla(QsciScintilla::SCI_SETINDICATORCURRENT, indicatorId);
+    editor->SendScintilla(QsciScintilla::SCI_INDICSETALPHA, indicatorId, 60);
+    editor->SendScintilla(QsciScintilla::SCI_INDICSETOUTLINEALPHA, indicatorId, 255);
+    editor->SendScintilla(QsciScintilla::SCI_INDICSETUNDER, indicatorId, true);
 }
 
 // -- implementations
@@ -99,6 +129,7 @@ QsciScintilla* CodexIncantation::newDarkScintilla(QWidget *parent, QString fileN
     CodexIncantation::setLexer(editor, fileName);
     CodexIncantation::setLexerFolding(editor, fileName);
     lexerPostSettings(editor);
+    CodexIncantation::setAutocompletion(editor);
     return editor;
 }
 void CodexIncantation::onTextChange(QsciScintilla* editor, std::function<void(QsciScintilla*)> logic) {
@@ -474,6 +505,137 @@ bool CodexIncantation::setLexerFolding(QsciScintilla* editor, QString fileName) 
     }  
     return true;
 }
+void CodexIncantation::setAutocompletion(QsciScintilla* editor) {
+    if (!editor || !editor->lexer()) return;
+    if (editor->lexer()->apis()) return;
+    // Link APIs to the existing lexer
+    QsciAPIs* apis = new QsciAPIs(editor->lexer());
+    // Configure Scintilla behavior
+    editor->setAutoCompletionSource(QsciScintilla::AcsAPIs);
+    editor->setAutoCompletionThreshold(3);
+    editor->setAutoCompletionCaseSensitivity(false);
+    editor->setAutoCompletionReplaceWord(false);
+}
+void CodexIncantation::updateAutocompletion_Range(QsciScintilla* editor) {
+    int range = 50;
+    QsciLexer* lexer = editor->lexer();
+    if (!lexer || !editor) return;      
+    QsciAPIs* apis = dynamic_cast<QsciAPIs*>(lexer->apis());
+    if (!apis) return;
+    // 1. Calculate line range
+    int currentLine, index;
+    editor->getCursorPosition(&currentLine, &index);
+    int startLine = std::max(0, currentLine - range);
+    int endLine = std::min(editor->lines() - 1, currentLine + range);
+    // 2. Extract text (using Scintilla range is faster than editor->text().mid)
+    int startPos = editor->SendScintilla(QsciScintilla::SCI_POSITIONFROMLINE, startLine);
+    int endPos = editor->SendScintilla(QsciScintilla::SCI_GETLINEENDPOSITION, endLine);
+    QString rangeText = editor->text(startPos, endPos); // Qt-native way to get range
+    // 3. Get the existing word set from cache
+    QHash<QString, QVariant>& data = SCINTILLA_DATA[editor]; 
+    QSet<QString> knownWords = data.value("knownWords").value<QSet<QString>>();
+    // 4. Tokenize and Add
+    QRegularExpression re("\\b[A-Za-z_]\\w{2,}\\b");
+    QRegularExpressionMatchIterator i = re.globalMatch(rangeText);
+    QString currentWord = CodexIncantation::getCurrentTypingWord(editor);
+    bool addedAny = false;
+    while (i.hasNext()) {
+        QString word = i.next().captured();
+        if (knownWords.contains(word)) continue;
+        if (word==currentWord) continue;
+        knownWords.insert(word);
+        apis->add(word);
+        addedAny = true;
+    }
+    // 5. Finalize
+    if (addedAny) {
+        // Save the updated set back to the QVariant hash
+        data.insert("knownWords", QVariant::fromValue(knownWords));
+        apis->prepare();
+    }
+}
+void CodexIncantation::updateAutocompletion_Full(QsciScintilla* editor) {
+    QsciLexer* lexer = editor->lexer();
+    if (!lexer || !editor) return;      
+    QsciAPIs* apis = dynamic_cast<QsciAPIs*>(lexer->apis());
+    if (!apis) return;
+
+    // 1. Get current cache
+    QHash<QString, QVariant>& data = SCINTILLA_DATA[editor]; 
+    QSet<QString> knownWords = data.value("knownWords").value<QSet<QString>>();
+
+    // 2. Scan text
+    // Optimization: If file is huge, consider scanning in chunks 
+    // but for now, we use the full text.
+    QString fullText = editor->text();
+    QRegularExpression re("\\b[A-Za-z_]\\w{2,}\\b");
+    QRegularExpressionMatchIterator i = re.globalMatch(fullText);
+
+    bool addedAny = false;
+    while (i.hasNext()) {
+        QString word = i.next().captured();
+        if (!knownWords.contains(word)) {
+            knownWords.insert(word);
+            apis->add(word); // Only adding genuinely NEW words
+            addedAny = true;
+        }
+    }
+
+    // 3. Finalize
+    if (addedAny) {
+        // DO NOT call apis->clear() here or you lose the work above!
+        data.insert("knownWords", QVariant::fromValue(knownWords));
+        apis->prepare();
+    }
+}
+QString CodexIncantation::getCurrentTypingWord(QsciScintilla* editor) {
+    int line, index;
+    editor->getCursorPosition(&line, &index);
+    return editor->wordAtLineIndex(line, index);
+}
+void CodexIncantation::applyIndicatorsFromTextDirectives(QsciScintilla* editor) {
+    if (!editor) return;
+    clearIndicators(editor);
+    int maxLine = std::min(100, editor->lines());
+    int indicatorId = 8; 
+    for (int i = 0; i < maxLine; ++i) {
+        QString lineText = editor->text(i);
+        QRegularExpressionMatch match = directiveRegex.match(lineText);
+        if (match.hasMatch()) {
+            QStringList groups = match.captured(1).split('|', Qt::SkipEmptyParts);
+            for (const QString& group : groups) {
+                QStringList parts = group.split(':');
+                if (parts.size() < 2 || indicatorId > 31) continue;
+                QColor color(parts[0].trimmed());
+                QStringList tokens = parts[1].split(',', Qt::SkipEmptyParts);
+                // Setup Indicator
+                setIndicator(editor, indicatorId, color);
+                for (const QString& token : tokens) {
+                    QString cleanToken = token.trimmed();
+                    if (cleanToken.isEmpty()) continue;
+                    // --- TARGET SEARCH LOGIC (The Fix) ---
+                    QByteArray bytes = cleanToken.toUtf8();
+                    int docLength = editor->SendScintilla(QsciScintilla::SCI_GETLENGTH);
+                    // Reset search range to full document for every new token
+                    editor->SendScintilla(QsciScintilla::SCI_SETTARGETSTART, 0);
+                    editor->SendScintilla(QsciScintilla::SCI_SETTARGETEND, docLength);
+                    // Match whole words only (2) | Case sensitive (0 or 4)
+                    editor->SendScintilla(QsciScintilla::SCI_SETSEARCHFLAGS, 2); 
+                    while (editor->SendScintilla(QsciScintilla::SCI_SEARCHINTARGET, bytes.length(), bytes.constData()) != -1) {
+                        int mStart = editor->SendScintilla(QsciScintilla::SCI_GETTARGETSTART);
+                        int mEnd = editor->SendScintilla(QsciScintilla::SCI_GETTARGETEND);
+                        // Apply indicator using raw positions
+                        editor->SendScintilla(QsciScintilla::SCI_INDICATORFILLRANGE, mStart, mEnd - mStart);
+                        // Move search target past the current match
+                        editor->SendScintilla(QsciScintilla::SCI_SETTARGETSTART, mEnd);
+                        editor->SendScintilla(QsciScintilla::SCI_SETTARGETEND, docLength);
+                    }
+                }
+                indicatorId++; 
+            }
+        }
+    }
+}
 
 // Incantation || namespace TabbedSplitView 
 QsciScintilla* TabbedSplitView::addLeftTab_Scintilla(QSplitter* view, QString name) {
@@ -508,6 +670,7 @@ QsciScintilla* TabbedSplitView::dialogScintillaTabLoad(QTabWidget* tabs) {
     editor->blockSignals(true);
     editor->setText(content);
     editor->blockSignals(false);
+    CodexIncantation::updateAutocompletion_Full(editor);
     editor->setReadOnly(true);
     editor->foldAll(true);
     editor->setFocus();
@@ -533,7 +696,8 @@ QsciScintilla* TabbedSplitView::loadScintillaFromFilename(QTabWidget* tabs, QStr
     QString content = loadFile(fileName);
     editor->blockSignals(true);
     editor->setText(content);
-    editor->blockSignals(false);
+    editor->blockSignals(false); 
+    CodexIncantation::updateAutocompletion_Full(editor);
     editor->setReadOnly(true);
     editor->foldAll(true);
     return editor;
@@ -574,6 +738,8 @@ bool TabbedSplitView::isFileAlreadyOpened(QTabWidget* currentTabs, QString absFi
     if (!splitter) return false; 
     return TabbedSplitView::isFileAlreadyOpened(splitter,absFilepath);
 }
+
+
 
 // -- END 
 

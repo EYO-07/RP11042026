@@ -1,3 +1,4 @@
+// {TextMarker|cyan:>>>,<<<,TODO|red:ISSUE|yellow:INCOMPLETE,DEPRECATED,TESTING|silver:SCULPT}
 // -- BEGIN
 // CODEX_DarkQt.cpp
 #include "CODEX_DarkQt.h"
@@ -92,6 +93,12 @@ void CodexIncantation::applyDarkTheme(QWidget* root) {
         /* Global Defaults */
         "QWidget { color: %2; background: rgba(%1,%3); font-family: system-ui; }"
 
+        /* This is what you specifically asked for: The Selection colors */
+        "QsciScintilla QListWidget::item:selected {"
+        "    background-color: rgb(0,0,200);"
+        "    color: %2;"
+        "}"
+
         /* Top-level Splitter and Handles */
         "QSplitter { background: rgba(%1,%3); }"
         "QSplitter::handle { background: rgba(80, 80, 80, 100); }"
@@ -148,6 +155,31 @@ bool CodexIncantation::createEmptyFileDialog() {
         return true;
     } 
     return false;
+}
+void CodexIncantation::moveSeparator(QSplitter* splitter, int value) { // TESTING 
+    if (!splitter) return;
+    if (value == 0) return;
+    // Get current sizes of all widgets in the splitter
+    QList<int> sizes = splitter->sizes();
+    if (sizes.size() < 2) return; // need at least two widgets
+    // We’ll adjust the first two widgets for simplicity.
+    int left = sizes[0];
+    int right = sizes[1];
+    if (value > 0) {
+        // Move separator to the right (vertical splitter) or down (horizontal splitter)
+        left += value;
+        right -= value;
+    } else {
+        // Move separator to the left (vertical splitter) or up (horizontal splitter)
+        left += value;   // value is negative
+        right -= value;  // subtracting a negative increases right
+    }
+    // Prevent collapsing any widget completely
+    if (left < 0) left = 0;
+    if (right < 0) right = 0;
+    sizes[0] = left;
+    sizes[1] = right;
+    splitter->setSizes(sizes);
 }
 
 // Incantation || namespace TabbedSplitView 

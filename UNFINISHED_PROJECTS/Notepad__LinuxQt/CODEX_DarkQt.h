@@ -33,6 +33,7 @@ namespace CodexIncantation {
     // widgets
     void toggleOrientation(QSplitter *splitter);
     template<typename T> T* findClosestParent(QWidget* child);
+    void moveSeparator(QSplitter* splitter, int value);
     // -- 
     namespace TabbedSplitView {
         QSplitter* tabbedSplitView();

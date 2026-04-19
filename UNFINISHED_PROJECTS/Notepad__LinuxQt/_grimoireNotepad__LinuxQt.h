@@ -1,5 +1,45 @@
+// {TextMarker|cyan:Inventory}
 // Grimoire [ C++ ] { Qt6, Linux, QsciScintilla }
-// ... this file is just a cheat sheet for C++, Qt6 and QsciScintilla development.
+// ... This project uses Magic Oriented Programming Paradigm 
+/* MOPP : Magic Oriented Programming Paradigm 
+
+... programming is the closest thing to magic in our world
+
+Paradigm [ Magic Oriented Programming Paradigm ] : Concept mapping between programming and magic. 
+
+Motto [ Wizards uses Magic ] : An adept of MOPP should not have aversion of new technologies, if it can make your life easy like magic, then you should master it. 
+1. MOPP is specially designed for LLM's and code generators A.I.'s 
+2. How much control you want for your project? This will dictate how you use magic.
+
+Concepts { Magic Oriented Programming Paradigm }
+1. Spellcasting : Spell is a function and casting is the use of the appropriate syntax.
+2. Oracles : Are the LLM's, a wizard should use it to craft new spells or consulting.
+3. Grimoires : list of existing spells, generaly crafted as a `cheat sheet comment block` format with aid of oracules. Grimoires can be safely handled by oracles. 
+4. Golems : the golem is the manually crafted part of code, managed primarly by humans, the golem should be as close as possible (have the form) of the project's logic. Golem could be the main file or any other file intended for this purpose.
+5. Codex : the codex are the crafted spells (framework).
+6. LLM Spellcrafting : humans design the spell (syntax) and ask for implementation for oracles.
+7. Golem Sculpting : can be or not be made by LLM's, golem sculping is the creation of dummy and placeholder classes and functions for your project, it will be the 'skeleton' of your project.
+8. Golem Infusion : is the implementation of the dummies and placeholders of your project.
+9. Golem Craft : is the programming itself, the main objective of a wizard is the golem creation, the golem is the program which is designed to do some hard work. 
+10. Divination : Oracle consulting 
+11. Library : Official Documentation, Search Engines 
+
+{ Grimoire Craft, Golem Sculpting, Spellcast, Codex Spellcraft, Golem Infusion, Divination }
+Grimoire Craft % Divination, Library
+Golem Sculpting % Divination, Library 
+Golem Infusion % Spellcast { Grimoire Spellcast, Codex Spellcast } 
+Codex % Divination, Library
+
+... once the project begins these will be the main activities for development
+... (Golem Sculpting, Codex/Grimoire Maintenance, Golem Infusion)
+
+... Every time you need to manually write a code, that is considered golem craft, so if you manually write a spell in the codex, the wizard should understand the activity as golem craft, so mentally you will perform that activity sculpting, crafting new helper spells, and performing infusion. The wizard should differentiate this from the global project organization.
+
+... (Sculpting, Spellcrafting, Infusion) is how a programmer sees the programming as a wizard.
+... (Sculpting, Infusion) is a shortcut workflow, when spellcraft isn't necessary if the spells necessary for the project is already in the codex or already in the built-in libraries from the grimoire.
+
+*/
+
 // -- BEGIN 
 
 // Template
@@ -151,6 +191,20 @@
 3. QSet<QString> s3 = QSet<QString>::fromList(myStringList); // Deprecated in Qt6, use below instead
 4. QSet<QString> s4(myList.begin(), myList.end()); // Iterator-based (Convert from QList/std::vector)
 5. QSet<QString> s5; s5.reserve(100); // Empty initialization with memory optimization
+*/
+/* Inventory [ QHash ] { Qt6, C++ } 
+1. QHash<K, V> map; // Declare an unordered hash table
+2. map.insert(key, value); // Insert or update a key-value pair
+3. map[key] = value; // Insert/update using subscript operator
+4. map.value(key, default); // Get value; returns 'default' if key missing
+5. map.contains(key); // Check if key exists (returns bool)
+6. map.remove(key); // Delete a key and its associated value
+7. map.take(key); // Remove and return the value without copying
+8. map.clear(); // Remove all items from the hash
+9. map.size(); // Return the number of items
+10. map.reserve(n); // Pre-allocate memory for 'n' items (optimization)
+11. for (auto it = map.begin(); it != map.end(); ++it); // Standard iterator
+12. for (auto [key, val] : map.asKeyValueRange()); // C++17 structured bindings (Qt 6.x)
 */
 
 // -- layout and frame containers
@@ -378,6 +432,7 @@
  * BraceMatch { NoBraceMatch, StrictBraceMatch, SloppyBraceMatch }
  * */
 
+// -- QsciScintilla | lexer
 /* Inventory [ Lexer ] { Qt6, C++, Linux, QsciScintilla } 
 1. QsciLexerCPP* lexer = new QsciLexerCPP(parent); // Initialize standard C++ lexer
 2. editor->setLexer(lexer); // Attach lexer to the Scintilla editor instance
@@ -389,13 +444,11 @@
 8. editor->setAutoIndent(true); // Enable basic auto-indentation logic
 9. lexer->setEolFill(true); // Ensure background color extends to end of line
 */
-
 /* Inventory [ Downcasting Lexer ] { Qt6, C++, QsciScintilla } 
 1. QsciLexer* baseLexer = editor->lexer(); // Get generic lexer
 2. QsciLexerCPP* cppLexer = qobject_cast<QsciLexerCPP*>(baseLexer); // Try to convert
 3. if (cppLexer) { cppLexer->setFoldAtElse(true); } // Use only if successful
 */
-
 /* Inventory [ Lexer Auto-Picker ] { Qt6, C++, QsciScintilla } 
 1. QFileInfo fi(path); // Extract extension
 2. QString ext = fi.suffix().toLower(); // Normalize to lowercase
@@ -405,6 +458,7 @@
 6. return nullptr; // Fallback to no lexer (plain text)
 */
 
+// -- QsciScintilla | events
 /* Inventory [ Event Callbacks ] { C++, Linux, Qt6, Scintilla } 
  * * -- QWidget / QTabWidget (Qt6 Core) --
  * virtual void mousePressEvent(QMouseEvent* event) // Handles mouse click interactions
@@ -422,7 +476,6 @@
  * void QObject::timerEvent(QTimerEvent* event) // Handles periodic background tasks/polling
  * bool QObject::eventFilter(QObject* watched, QEvent* event) // Intercepts events before reaching the target
  * */
-
 /* Inventory [ Signal/Slot Connections ] { C++, Linux, Qt6 } 
  * SYNTAX // SHORT_DESCRIPTION 
  * // -- Standard Pointer Syntax (Recommended) --
@@ -442,6 +495,20 @@
  * senderSignalIndex(); // Returns the index of the signal currently calling the slot
  * QSignalBlocker blocker(object); // RAII-style: temporarily silences all signals for an object
  * */
+
+// -- QsciScintilla | autocompletion
+/* Inventory [ Autocompletion ] { QsciScintilla, C++, Linux, Qt6 } 
+1. QsciAPIs *api = new QsciAPIs(lexer); // Initialize API handler for a specific lexer
+2. api->add("keyword"); // Manually add a single term to the completion list
+3. api->load("path/to/file.api"); // Load bulk keywords from an external .api file
+4. api->prepare(); // Compile the API list into an internal prepared set (mandatory)
+5. scnt->setAutoCompletionSource(QsciScintilla::AcsAPIs); // Set source to use QsciAPIs
+6. scnt->setAutoCompletionThreshold(2); // Set number of characters before popup appears
+7. scnt->setAutoCompletionCaseSensitivity(true); // Toggle case-sensitive matching
+8. scnt->setAutoCompletionReplaceWord(true); // Overwrite current word on selection
+9. scnt->autoComplete(); // Manually trigger the autocompletion popup
+10. scnt->isListActive(); // Check if a completion list is currently visible
+*/
 
 // =================================================================================
 // Conjuration : Integration
