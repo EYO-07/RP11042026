@@ -304,7 +304,7 @@ void darkTabScintillaLogic(QsciScintilla* view) {
                     saveFile(absPath, view->text());
                     QMessageBox::information(view, "File Saved", "File Saved on: "+absPath);
                     if ( prev_tab_text.startsWith("* ") ) {
-                        tabs->setTabText(currentTab,prev_tab_text.slice(2));
+                        tabs->setTabText(currentTab,prev_tab_text.sliced(2));
                     }
                 } else {}
                 return true;
@@ -337,7 +337,7 @@ void darkTabScintillaLogic(QsciScintilla* view) {
                 } else {
                     if ( !isEnclosedBy(prev_tab_text, "[ ", " ]") ) return true;
                     int len = prev_tab_text.length();
-                    tabs->setTabText(currentTab, prev_tab_text.slice(2,len-4));
+                    tabs->setTabText(currentTab, prev_tab_text.sliced(2,len-4));
                 }
                 return true;
             }
