@@ -1,0 +1,116 @@
+# For the benefit of emacs users: -*- shell-script -*-
+###########################
+# xbindkeys configuration #
+###########################
+#
+# Version: 1.8.7
+#
+# If you edit this file, do not forget to uncomment any lines
+# that you change.
+# The pound(#) symbol may be used anywhere for comments.
+#
+# To specify a key, you can use 'xbindkeys --key' or
+# 'xbindkeys --multikey' and put one of the two lines in this file.
+#
+# The format of a command line is:
+#    "command to start"
+#       associated key
+#
+#
+# A list of keys is in /usr/include/X11/keysym.h and in
+# /usr/include/X11/keysymdef.h
+# The XK_ is not needed.
+#
+# List of modifier:
+#   Release, Control, Shift, Mod1 (Alt), Mod2 (NumLock),
+#   Mod3 (CapsLock), Mod4, Mod5 (Scroll).
+#
+
+# The release modifier is not a standard X modifier, but you can
+# use it if you want to catch release events instead of press events
+
+# By defaults, xbindkeys does not pay attention with the modifiers
+# NumLock, CapsLock and ScrollLock.
+# Uncomment the lines above if you want to pay attention to them.
+
+#keystate_numlock = enable
+#keystate_capslock = enable
+#keystate_scrolllock= enable
+
+# Examples of commands:
+
+#"xbindkeys_show" 
+#  control+shift + q
+
+# set directly keycode (here control + f with my keyboard)
+#"xterm"
+#  c:41 + m:0x4
+
+# specify a mouse button
+#"xterm"
+#  control + b:2
+
+#"xterm -geom 50x20+20+20"
+#   Shift+Mod2+alt + s
+#
+## set directly keycode (here control+alt+mod2 + f with my keyboard)
+#"xterm"
+#  alt + c:0x29 + m:4 + mod2
+#
+## Control+Shift+a  release event starts rxvt
+#"rxvt"
+#  release+control+shift + a
+#
+## Control + mouse button 2 release event starts rxvt
+#"rxvt"
+#  Control + b:2 + Release
+
+##################################
+# USER DEFINED 
+##################################
+
+# KYB FAST MOUSE MOVE   
+"xdotool mousemove_relative -- 0 -10" 
+  Control+Up
+  
+"xdotool mousemove_relative -- 0 10"
+  Control+Down
+
+"xdotool mousemove_relative -- -15 0"
+  Control+Left
+
+"xdotool mousemove_relative -- 15 0"
+  Control+Right
+  
+# KYB MOUSE SCROLLING 
+
+# [ CLICKING & SCROLLING ]
+# 5. xdotool click [1|2|3] // Simulates instant press/release (1=Left, 2=Middle, 3=Right).
+# 6. xdotool click [4|5] // Simulates Mouse Wheel Scroll (4=Up, 5=Down).
+# 7. xdotool click [6|7] // Simulates Horizontal Scroll (6=Left, 7=Right).
+# 8. xdotool click --repeat N --delay MS B // Clicks button 'B', 'N' times, with 'MS' milliseconds between.
+# 9. xdotool mousedown/mouseup B // Manual control for click-and-drag operations.
+
+"xdotool click 1"
+  KP_Insert
+  
+"xdotool click 3"
+  KP_Delete
+  
+#"xdotool click 2"
+#  Alt+Shift+Control_R
+
+"xdotool click 4"
+  KP_Left
+  
+"xdotool click 5"
+  KP_End
+  
+##################################
+# End of xbindkeys configuration #
+##################################
+
+
+
+
+
