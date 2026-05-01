@@ -198,6 +198,7 @@
 # -> xrandr --setprovideroutputsource provider1 provider2 
 # -> xrandr --output DP-1 --auto --right-of HDMI-1
 # -> xrandr --output DISPLAY1 --primary --auto --output DISPLAY2 --auto --right-of DISPLAY1 ; dual mode monitor 
+# -> xrandr --output DISPLAY --brightness FLOAT ; set brightness for desktop adjusting gamma 
 
 # Inventory [ i3 initialization config ] { Linux Bash }
 # -> setxkbmap -option keypad:pointerkeys ; for mouse keyboard control 
@@ -235,6 +236,40 @@
 # 19. xdotool exec --sync command ; Run command and wait for window to appear
 # 20. xdotool sleep SECONDS ; Pause execution
 # 21. sudo apt install xdotool 
+
+# Inventory [ xdotool ] { Linux Automation }
+# -----------------------------------------------------------------------------
+# [ INSTALLATION ]
+# 1. sudo apt install xdotool // Installs the X11 automation tool.
+#
+# [ MOUSE MOVEMENT ]
+# 2. xdotool mousemove X Y // Moves cursor to absolute coordinates (0 0 is top-left).
+# 3. xdotool mousemove_relative [--] DX DY // Moves cursor relative to current spot; use -- for negative values.
+# 4. xdotool getmouselocation // Returns X, Y, screen number, and window ID under cursor.
+#
+# [ CLICKING & SCROLLING ]
+# 5. xdotool click [1|2|3] // Simulates instant press/release (1=Left, 2=Middle, 3=Right).
+# 6. xdotool click [4|5] // Simulates Mouse Wheel Scroll (4=Up, 5=Down).
+# 7. xdotool click [6|7] // Simulates Horizontal Scroll (6=Left, 7=Right).
+# 8. xdotool click --repeat N --delay MS B // Clicks button 'B', 'N' times, with 'MS' milliseconds between.
+# 9. xdotool mousedown/mouseup B // Manual control for click-and-drag operations.
+#
+# [ KEYBOARD SIMULATION ]
+# 10. xdotool key [keysym] // Sends a stroke (e.g., "ctrl+alt+t", "Return", "space").
+# 11. xdotool type --delay MS "text" // Types a string with a realistic delay between characters.
+# 12. xdotool keydown/keyup [keysym] // Holds or releases a key (crucial for custom modifiers).
+#
+# [ WINDOW MANAGEMENT ]
+# 13. xdotool getactivewindow // Returns the ID of the currently focused window.
+# 14. xdotool windowactivate [ID] // Focuses and brings the specified window to the front.
+# 15. xdotool windowsize [ID] W H // Resizes window to specific Width and Height.
+# 16. xdotool windowmove [ID] X Y // Moves window to specific coordinates.
+# 17. xdotool search --name "string" // Finds window IDs matching a specific title.
+#
+# [ FLOW CONTROL ]
+# 18. xdotool sleep SECONDS // Pauses the script; supports decimals (e.g., 0.5).
+# 19. xdotool --sync // Flag used with move/focus to wait for the action to finish before next command.
+# 20. xdotool behave ID [mouse-click|focus] CMD // Executes CMD when a specific event happens to a window.
 
 # Inventory [ Install/Use Window Managers ] { Linux Bash }
 # 1. apt install openbox ; install lightweight stacking WM
@@ -350,6 +385,13 @@
 # 29. updatedb ; update locate database
 # 30. tar -czf file.tar.gz DIR ; create compressed archive
 # 31. tar -xzf file.tar.gz ; extract archive
+# -> sudo fsck DISK ; should be unmounted and exist a risk of data corruption 
+# -> sudo apt install timeshift ; to take snapshot of the system files
+# -> sudo timeshift --create --comments "NAME_OF_SNAPSHOT"
+# -> sudo timeshift --restore
+# -> dmesg | grep -iE "error|critical|failed" ; check for erros in the log 
+# -> sudo apt debsums ; system files check through checksums 
+# -> sudo debsums -s ; only system file changes
 
 # Inventory [ Process Control ] { Linux Bash }
 # 1. ps aux ; list running processes
@@ -421,6 +463,8 @@
 # 18. nano /etc/network/interfaces ; manual interface config
 # 19. resolvectl status ; show DNS configuration
 # 20. traceroute HOST ; trace network route (if installed)
+# -> sudo ifconfig INTERFACENAME up ; ... 
+# -> sudo ifconfig INTERFACENAME down ; ...
 
 # Inventory [ Disk & Partitioning ] { Linux Bash }
 # 1. lsblk ; list block devices
@@ -492,13 +536,64 @@
 # 23. journalctl -p 3 -xb ; show boot errors
 # 24. apt update && apt upgrade ; keep system updated
 
+# Inventory [ Bash ] { Linux }
+# ->  #!/bin/bash // The "shebang" line that tells the system to use the Bash interpreter to run the script.
+# -> $1 // A positional parameter representing the first argument passed to the script (e.g., "up" or "click").
+# -> case ... esac // A control flow block used to compare the input argument against multiple possible patterns.
+# -> up) ... ;; // A pattern match for the string "up"; the double semicolons terminate the specific case logic.
+# -> xdotool mousemove_relative // Moves the mouse cursor relative to its current (X, Y) coordinates.
+# -> -- // A flag separator telling xdotool that subsequent negative numbers (like -20) are not command options.
+# -> 0 -$STEP // Coordinates for movement: the first number is X (horizontal), the second is Y (vertical).
+# -> xdotool click 1 // Simulates a mouse button press; '1' is the left mouse button, '3' is the right.
+# -> chmod +x // Command used in the terminal to grant "execute" permissions to the script file.
+# -> xbindkeys // Background daemon that maps keyboard/mouse events to shell commands.
+# -> xinput // Utility to list, query, and configure input devices (keyboards/mice).
+# -> zenity // Display GTK+ dialog boxes from command-line; great for UI settings.
+# -> sxhkd // Simple X hotkey daemon; often faster and lighter than xbindkeys.
+# -> wmctrl // Control the X window manager; use with xdotool to snap windows to corners.
 
+# Inventory [ xbindkeys ] { Linux }
+# 1. xbindkeys --defaults // Generates the initial configuration file template.
+# 2. ~/.xbindkeysrc // The hidden configuration file where all key-to-command mappings live.
+# 3. xbindkeys -k // Interactive tool to find the specific "name" or "code" of a key.
+# 4. killall xbindkeys // Essential command to stop the background process before restarting with new settings.
+# 5. "command" // The first line of a mapping; specifies what xdotool or script should run.
+# 6. key_name // The second line of a mapping; specifies which physical key triggers the command above it.
 
+# Inventory [ xbindkeys ] { Linux }
+# -----------------------------------------------------------------------------
+# [ CONFIGURATION & DAEMON ]
+# 1. xbindkeys --defaults // Generates the initial configuration file template.
+# 2. ~/.xbindkeysrc // The hidden configuration file where all key-to-command mappings live.
+# 3. xbindkeys -k // Interactive tool to find the specific "name" or "code" of a key.
+# 4. killall xbindkeys && xbindkeys // Restarts the daemon to apply configuration changes.
+# 5. "command" // The first line of a mapping; specifies what xdotool or script should run.
+# 6. key_name // The second line of a mapping; specifies the physical trigger key.
+#
+# [ COMMON MODIFIER NAMES ]
+# 7. Control / Shift / Alt // Standard global modifiers (usually maps to the left side by default).
+# 8. mod4 // Common alias for the "Super" or "Windows" key.
+# 9. Control_L / Control_R // Explicitly targets the Left or Right Control keys.
+# 10. Shift_L / Shift_R // Explicitly targets the Left or Right Shift keys.
+# 11. Alt_L / Alt_R // Explicitly targets the Left or Right Alt (AltGr) keys.
+# 12. Super_L / Super_R // Explicitly targets the Left or Right Windows/Command keys.
+#
+# [ COMMON KEY NAMES ]
+# 13. Up / Down / Left / Right // Standard arrow keys.
+# 14. Prior / Next // The keysym names for Page Up and Page Down.
+# 15. Home / End / Insert / Delete // Standard navigation cluster keys.
+# 16. Return / space / Tab / Escape // Common action keys (note: space is lowercase).
+# 17. F1...F12 // Function keys.
+# 18. KP_Up / KP_Begin / KP_Insert // Keypad-specific names (Begin is Numpad 5).
+# 19. b:1 / b:2 / b:3 // Mouse buttons (1=Left, 2=Middle, 3=Right).
+# 20. b:4 / b:5 // Mouse wheel scrolling (4=Up, 5=Down).
 
-
-
-
-
+# Inventory [ ... ]
+# -> ps auxf ; list all processes 
+# -> sudo systemctl enable SERVICE // enable service 
+# -> sudo systemctl start SERVICE // start service 
+# -> sudo systemctl restart SERVICE // start service 
+# -> /etc/network/interfaces // location of default config for ifupdown network interface 
 
 
 
