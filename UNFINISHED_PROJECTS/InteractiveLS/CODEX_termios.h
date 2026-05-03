@@ -32,6 +32,7 @@ bool changeDirectory(std::wstring path);
 std::vector<std::wstring> split(const std::wstring& input, wchar_t delimiter);
 std::vector<std::string> split(const std::string& input, char delimiter);
 void openTerminal(const std::filesystem::path& path, const std::string& term);
+std::wstring utf8_to_wstring(const std::string& str);
 
 // -- classes and structs
 struct TermiosSettings { // Struct to store original terminal settings
@@ -43,7 +44,7 @@ struct Cleanup { // Ensure restoration on exit
 };
 // 
 class TerminalExplorer {
-public:    
+public:
     TerminalExplorer();
     std::vector<std::wstring>& getLines() { return this->lines; }
     void update();
@@ -52,18 +53,22 @@ public:
     void left();
     void right();
     int getIndex(const std::filesystem::path&);
-    //void setIndex(const std::filesystem::path&);
     void setTerminal(std::string term) { this->terminal = term; }
     void openTerminal();
-private:
+    void setGrepArgs(std::wstring arg) { this->grep_arg = arg; } // UNUSED 
+protected:
     std::vector<std::wstring> lines;
     std::vector<std::wstring> raw_lines;
     std::filesystem::path currentDir;
     std::unordered_map<std::filesystem::path, int> path2index;
     int range = 15;
     std::string terminal = "xterm";
+    std::wstring grep_arg = L""; // UNUSED 
+    std::vector<std::wstring> filters; 
     // -- methods
     bool updateLsCommand();
+    std::filesystem::path getPathFromLine(int index); // ! 
+    bool isDir(int index); // !
 };
 
 

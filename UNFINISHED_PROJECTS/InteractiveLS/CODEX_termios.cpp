@@ -145,6 +145,32 @@ void openTerminal(const std::filesystem::path& path, const std::string& term) {
         _exit(127); // exec failed
     }
 }
+std::wstring utf8_to_wstring(const std::string& str) {
+    iconv_t cd = iconv_open("WCHAR_T", "UTF-8");
+    if (cd == (iconv_t)-1) {
+        throw std::runtime_error("iconv_open failed");
+    }
+    size_t in_bytes = str.size();
+    const char* in_ptr_const = str.data();
+    char* in_ptr = const_cast<char*>(in_ptr_const);
+    // Worst case: 1 UTF-8 byte → 1 wchar_t (but wchar_t may be 4 bytes)
+    size_t out_bytes = (in_bytes + 1) * sizeof(wchar_t);
+    std::vector<char> buffer(out_bytes);
+    char* out_ptr = buffer.data();
+    size_t out_bytes_left = out_bytes;
+    size_t res = iconv(cd, &in_ptr, &in_bytes, &out_ptr, &out_bytes_left);
+    if (res == (size_t)-1) {
+        iconv_close(cd);
+        throw std::runtime_error("iconv conversion failed");
+    }
+    iconv_close(cd);
+    // Calculate how many wchar_t were written
+    size_t bytes_written = out_bytes - out_bytes_left;
+    size_t wchar_count = bytes_written / sizeof(wchar_t);
+    wchar_t* wdata = reinterpret_cast<wchar_t*>(buffer.data());
+    return std::wstring(wdata, wchar_count);
+}
+
 //
 TerminalExplorer::TerminalExplorer() {
     this->updateLsCommand();
@@ -236,10 +262,14 @@ void TerminalExplorer::openTerminal() {
     ::openTerminal( this->currentDir, this->terminal );
 }
 bool TerminalExplorer::updateLsCommand() {
+    //std::wstring grep_cmd = L"";
     std::wstring cmd = L"ls -la --human-readable --no-group --group-directories-first "+this->currentDir.wstring();
+    //if(!this->grep_arg.empty()) { 
+    //    grep_cmd = L" | grep -iE '"+this->grep_arg+L"'"; 
+    //} 
     return 
         commandOutput(cmd+L" --color=always", this->lines ) &&
-        commandOutput(cmd, this->raw_lines )
+        commandOutput(cmd, this->raw_lines)
     ;
 }
 

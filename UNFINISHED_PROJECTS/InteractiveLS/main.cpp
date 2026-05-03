@@ -9,6 +9,7 @@ Usage: <application> [options]
 Options:
     --help                              Show usage.
     --terminal=<terminal_application>   Set the terminal application.
+    --grep=<tokens>                     Tokens for grep command, i.e. --grep=history|directory
 )";
 
 // -- ENTRY POINT 
@@ -19,10 +20,11 @@ int main(int argc, char *argv[]) {
     Cleanup cleaner{&settings};
     TerminalExplorer Explorer = TerminalExplorer();
     // -- arguments 
-    if (argc>1) { // argument options
+    if (argc>1) { // processing argument options
         int i;
         for (int i = 1; i < argc; ++i) {
             std::string strArgument = argv[i];
+            std::wstring wstrArgument = utf8_to_wstring(strArgument);
             if( strArgument.starts_with("--terminal") ) {
                 Explorer.setTerminal( split(strArgument,'=').back() );
             }
@@ -31,6 +33,9 @@ int main(int argc, char *argv[]) {
                 b_exit = true;
                 break;
             }
+            //if( wstrArgument.starts_with(L"--grep") ) {
+            //    Explorer.setGrepArgs( split(wstrArgument, L'=').back() );
+            //}
         }
     }
     // -- start 
