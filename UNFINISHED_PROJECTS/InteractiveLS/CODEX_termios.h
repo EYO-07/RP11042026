@@ -18,6 +18,7 @@
 #include <stdexcept>
 #include <codecvt>
 #include <locale>
+#include <set>
 
 // -- forward declarations 
 struct TermiosSettings;
@@ -56,7 +57,13 @@ public:
     void setTerminal(std::string term) { this->terminal = term; }
     void openTerminal();
     void setGrepArgs(std::wstring arg) { this->grep_arg = arg; } // UNUSED 
+    void selectFile();
+    void clearSelectedFiles() { this->selected_files.clear(); }
+    // void removeLastSelectedFile() { this->selected_files.pop_back(); }
+    void copyFiles(); // !
+    void moveFiles(); // !
 protected:
+    // -- variables 
     std::vector<std::wstring> lines;
     std::vector<std::wstring> raw_lines;
     std::filesystem::path currentDir;
@@ -65,11 +72,16 @@ protected:
     std::string terminal = "xterm";
     std::wstring grep_arg = L""; // UNUSED 
     std::vector<std::wstring> filters; 
+    std::set<std::filesystem::path> selected_files; // UNUSED
     // -- methods
     bool updateLsCommand();
-    std::filesystem::path getPathFromLine(int index); // ! 
+    std::filesystem::path getPathFromLine(int index); 
     bool isDir(int index); // !
+    void coutSelectedFiles();
 };
 
-
 /// END CODEX_termios.h 
+
+
+
+

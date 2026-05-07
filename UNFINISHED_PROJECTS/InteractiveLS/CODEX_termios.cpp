@@ -188,12 +188,17 @@ int TerminalExplorer::getIndex(const std::filesystem::path& dirPath) {
 void TerminalExplorer::update() { 
     std::wcout << "Current Directory :" << this->currentDir << std::endl;
     std::wcout << "1. q : exit" << std::endl;
-    std::wcout << "2. t : open terminal (" << this->terminal << ") in current directory" << std::endl;
+    std::wcout << "2. t : open terminal (" << utf8_to_wstring(this->terminal) << ") in current directory" << std::endl;
     std::wcout << "3. Arrow Keys : navigation" << std::endl;
     std::wcout << "4. Home, End : fast navigation" << std::endl;
-    std::wcout << std::endl;
+    std::wcout << "5. s,d : select/deselect files" << std::endl;
+    coutSelectedFiles();
     if ( this->updateLsCommand() ) { 
         int it = 0;
+        if (this->lines.size()>3) {
+            if ( getIndex(this->currentDir)==0 )
+                this->path2index[this->currentDir] = 3;
+        }
         for(const std::wstring& item: this->lines) {
             if (item.empty()) break; 
             int index = getIndex(this->currentDir);
@@ -211,9 +216,9 @@ void TerminalExplorer::update() {
                 break; 
             }
             if ( index == it ) {
-                std::wcout << "> " << item << " <" << std::endl;
+                std::wcout << ">  " << item << "  <" << std::endl;
             } else {
-                std::wcout << item << std::endl;
+                std::wcout << "   " << item << std::endl;
             }
             it++;
         }
@@ -249,12 +254,14 @@ void TerminalExplorer::left() {
 }
 void TerminalExplorer::right() {
     int index = this->getIndex(this->currentDir);
-    if (index<0 || index >= this->raw_lines.size() ) return; 
-    std::wstring str_path = split(this->raw_lines[index],L' ').back();
-    std::filesystem::path path(str_path);
-    if (!std::filesystem::exists(path)) return; 
+    //if (index<0 || index >= this->raw_lines.size() ) return; 
+    //std::wstring str_path = split(this->raw_lines[index],L' ').back();
+    //std::filesystem::path path(str_path);
+    //if (!std::filesystem::exists(path)) return; 
+    std::filesystem::path path = getPathFromLine(index);
+    if (path.empty()) return;
     if (!std::filesystem::is_directory(path)) return;    
-    changeDirectory(str_path);
+    changeDirectory(path.wstring());
     this->currentDir = std::filesystem::current_path();
     if ( this->path2index.count(this->currentDir) == 1 ) return;
     this->path2index[this->currentDir] = 0;
@@ -268,6 +275,40 @@ bool TerminalExplorer::updateLsCommand() {
         commandOutput(cmd+L" --color=always", this->lines ) &&
         commandOutput(cmd, this->raw_lines)
     ;
+}
+void TerminalExplorer::coutSelectedFiles() {
+    int count = 1;
+    if ( this->selected_files.size()==0 ) goto end;
+cout_display:
+    std::wcout << std::endl;
+    std::wcout << "Selected Files:" << std::endl;
+    for(const auto& item: this->selected_files) {
+        std::wcout << count << ". " << item << std::endl;
+        count++;
+    }
+end:    
+    std::wcout << std::endl;
+}
+std::filesystem::path TerminalExplorer::getPathFromLine(int index) {
+    std::wstring str_path = L"";
+    std::filesystem::path path;
+    if (index<0 || index >= this->raw_lines.size() ) goto fail; 
+    // -- 
+    str_path = split(this->raw_lines[index],L' ').back();
+    if ( str_path.empty() ) goto fail;
+    path = std::filesystem::path(str_path);
+    if (path.empty()) goto fail;
+    if (!std::filesystem::exists(path)) goto fail;
+    return path;
+fail:
+    return std::filesystem::path{};
+} 
+void TerminalExplorer::selectFile() {
+    int index = getIndex(this->currentDir);
+    std::filesystem::path path = getPathFromLine(index);
+    if (path.string().compare(".")==0 || path.string().compare("..")==0) return;
+    if (path.empty()) return;
+    this->selected_files.insert( std::filesystem::absolute(path) );
 }
 
 /// END CODEX_termios.h 

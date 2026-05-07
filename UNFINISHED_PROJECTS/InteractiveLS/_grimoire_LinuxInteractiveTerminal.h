@@ -135,6 +135,19 @@ Workflow [ Programming ] { Magic Oriented Programming Paradigm }
 14. m.load_factor(); // Returns average elements per bucket (size/bucket_count)
 15. for(auto& [k, v] : m); // Structured binding loop to iterate pairs
 */
+/* Inventory [ <set> ] { C++20 }
+1. std::set<T>              // Sorted unique elements (Tree-based)
+2. std::unordered_set<T>    // Unsorted unique elements (Hash-based)
+3. std::erase(c, val)       // Remove all elements == val (C++20)
+4. std::erase_if(c, pred)   // Remove elements matching pred (C++20)
+5. c.contains(val)          // Check existence (C++20)
+6. c.emplace(args...)       // Construct in-place (C++11+, C++20 refined)
+7. c.insert_or_assign(k, v) // Insert or update (Map/Set generic)
+8. view | std::views::filter// Range-based filtering (C++20)
+9. std::ranges::set_union   // Merge sorted ranges efficiently
+10. std::ranges::set_intersection // Find common elements
+11. s.insert(element);
+*/
 
 /// Filesystem 
 /* Inventory [ <filesystem> ] { C++ }
@@ -171,6 +184,7 @@ Workflow [ Programming ] { Magic Oriented Programming Paradigm }
 13. p.lexically_normal(); // Returns path with dots and redundant separators removed
 14. p.lexically_relative(base); // Returns path relative to a base path
 15. p.begin(); / p.end(); // Iterates through each component of the path
+16. std::filesystem::absolute(path); // convert to absolute path
 */
 
 

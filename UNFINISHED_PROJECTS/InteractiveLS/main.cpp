@@ -9,7 +9,6 @@ Usage: <application> [options]
 Options:
     --help                              Show usage.
     --terminal=<terminal_application>   Set the terminal application.
-    --grep=<tokens>                     Tokens for grep command, i.e. --grep=history|directory
 )";
 
 // -- ENTRY POINT 
@@ -65,6 +64,10 @@ int main(int argc, char *argv[]) {
             if (key=='t') Explorer.openTerminal();
             if (key=='H') Explorer.up(10);
             if (key=='F') Explorer.down(10);
+            if (key=='s') Explorer.selectFile(); // select current file or directory
+            if (key=='d') Explorer.clearSelectedFiles(); // select current file or directory
+            if (key=='m') ; // move selected to current directory
+            if (key=='c') ; // copy selected to current directory
             Explorer.update();
             std::cout.flush(); // Force output immediately
         }
