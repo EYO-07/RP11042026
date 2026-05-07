@@ -59,7 +59,8 @@ bool commandOutput(std::wstring command, std::vector<std::wstring>& lines) {
         ssize_t bytesRead;
         auto commitLine = [&](std::wstring& line) {
             if (writeIdx < originalSize) {
-                lines[writeIdx] = std::move(line);
+                if(line.compare(lines[writeIdx])!=0)
+                    lines[writeIdx] = std::move(line);
             } else {
                 lines.push_back(std::move(line));
             }
@@ -74,18 +75,18 @@ bool commandOutput(std::wstring command, std::vector<std::wstring>& lines) {
                     }
                     commitLine(currentLine);
                 } else {
-                    // Convert char to wchar_t (assuming UTF-8 input)
                     unsigned char c = buffer[i];
                     currentLine += static_cast<wchar_t>(c);
                 }
             }
         }
-        if (!currentLine.empty()) {
-            commitLine(currentLine);
-        }
+        if (!currentLine.empty()) commitLine(currentLine);
         // Fill remaining original slots with empty strings
+        int it_count = 0;
         for (size_t i = writeIdx; i < originalSize; ++i) {
+            if(it_count>5) break;
             lines[i] = L"";
+            it_count++;
         }
         close(pipefd[0]);
         int status;
@@ -187,7 +188,7 @@ int TerminalExplorer::getIndex(const std::filesystem::path& dirPath) {
 void TerminalExplorer::update() { 
     std::wcout << "Current Directory :" << this->currentDir << std::endl;
     std::wcout << "1. q : exit" << std::endl;
-    std::wcout << "2. t : open terminal in current directory" << std::endl;
+    std::wcout << "2. t : open terminal (" << this->terminal << ") in current directory" << std::endl;
     std::wcout << "3. Arrow Keys : navigation" << std::endl;
     std::wcout << "4. Home, End : fast navigation" << std::endl;
     std::wcout << std::endl;
@@ -262,11 +263,7 @@ void TerminalExplorer::openTerminal() {
     ::openTerminal( this->currentDir, this->terminal );
 }
 bool TerminalExplorer::updateLsCommand() {
-    //std::wstring grep_cmd = L"";
     std::wstring cmd = L"ls -la --human-readable --no-group --group-directories-first "+this->currentDir.wstring();
-    //if(!this->grep_arg.empty()) { 
-    //    grep_cmd = L" | grep -iE '"+this->grep_arg+L"'"; 
-    //} 
     return 
         commandOutput(cmd+L" --color=always", this->lines ) &&
         commandOutput(cmd, this->raw_lines)
@@ -274,3 +271,8 @@ bool TerminalExplorer::updateLsCommand() {
 }
 
 /// END CODEX_termios.h 
+
+
+
+
+
