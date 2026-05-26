@@ -1,0 +1,183 @@
+{Notepad--L;cpp} 
+
+// TNOTE : Translucent Notepad Configs
+// (Press F1 to run): @{font:13} @{color:green} @{1200,400} @compact @shrink 
+// (Put @ to run): hotkeys -hotkeys -compact load exit -shrink rshrink -rshrink {eval:1+2} @-dropdown dropdown -dropright dropright 
+// alt+arrow_key moves, ctrl+s saves, F1 execute commands
+
+// ----- Artificial Inteligence Prompt for Declarative Semiformal Paradigm (DSL) ----- 
+// Use these texts to build prompts for DSL paradigm 
+// Alternatively you can attach pdfs from github project ( https://github.com/EYO-07/DSL ) to make the A.I. aware of DSL paradigm 
+// DSL was designed to build prompts for software development, but is very useful to review code and refactoring, as the DSL is a logical model of an application 
+
+// --- DSL Logic to Application --- 
+// (0) -- Your DSL Logic, you should build it for your application using the DSL syntax 
+[ My App ] { Some Language }
+1. Execution ~ Do a Hello World 
+
+/// LONGER VERSION 
+// (1) -- This is the prompt to make the A.I. and you aware of DSL syntax. You can give it forward and ask for explanation using AD (Artificial Dialetic). 
+This is a semiformal declarative language DSL, although there is symbols the names and descriptions must be interpreted and adapted to create a functional application. A sequence of expressions in DSL which describe the logic of a program or component is called DSL Logic. A DSL Logic has a starting line called head and a sequence of directives called logical paths. 
+1. N. with N as a number, or ->, this is an annotation for the start of a logical path. 
+2. [ Name or Application Description ], this part resumes the objetive of the DSL Logic.
+3. { Context of Application }, this part along with the objective is called the head of DSL Logic.
+4. X := Description, the operator := indicates that X is a shorter alias for a larger description. 
+5. X ~ Y, means that X is an event or task and Y is a declarative expression of how the event should be processed. 
+6. X || Y means that Y is inside the structure of X, is in his scope. 
+7. X | Y means that X and Y stands in the same scope (structure) and Y is performed after X. 
+8. & X, means that X is an repetition structure. 
+9. & (type) X, is a refinement of the above directive, it indicates the type of element of iteration in parenthesis.
+10. X (), denote that X is a function or a task. If it is an actual function depends of implementation. 
+11. X ()!, denote that it's a function declaration.
+12. X ()?, denote that it's a function definition.
+13. X ()*, denote that it's a function call.
+14. (type) = X (arg), is to specify the argument and returning type of the function with X name or description. 
+15. % X, denote that X belongs to an conditional structure (if-elseif-else) or a switch structure.
+16. $ X, denotes that X is a directive for construction of a variable. If it is a declaration or definition (initialization) is to be decided by the A.I.
+17. $ (type) X, is a refinement of the previous directive, the parenthesis indicates the type informal or formal description and X indicates the variable name or description. 
+18. $! X, indicates that this is just a declaration.
+19. $? X, indicates that this is a definition.
+20. $* X, indicates that this part modifies, or update the value of this variable. 
+21. X {}, denotes that X is a class structure.
+22. X {}!, denotes that X is a declaration of class X.
+23. X {}?, denotes that X is a definition of class X.
+24. X : Y {}, denotes that X is a class derived from Y.
+25. ... , used to hide parts from the declarative statement which can be deduced from the previous statements. 
+26. /filename, denotes a file or a module, /filename || X means that X should be on the appropriate file.
+27. ?, means that should be completed by the A.I. 
+28. A declaration can be assigned to multiple descriptions, for example: 'X,Y || Z' is the same as 'X || Z' followed by another logical path 'X | Y || Z' and Z should be smartly interpreted for X and for Y, they don't need to be the same.
+29. The same concept is valid for '% X,Y || Z' which means '% X || Z' followed by '% X | % Y || Z' .
+30. Logical Path { Context }, a context can be used in the end of a Logical Path. It's used to tell the A.I. to use specific library functions or to tell things that don't fit with DSL formalism. 
+
+// [ Optional and Not Tested ]
+27. The operator ^ indicates the scope, but should be used only for shorter alias. The operator ^ works different compared to | and || operators. The ^ indicates hierarchy by the quantity of ^, X^Y means that X has higher level than Y, so Y is on scope of X structure. With this notation X^^Y, X^^Y^ has the same meaning of X||Y, but X^Y^ and X^^Y^^ indicates that X and Y have same scope level and has the meaning of X|Y. The | and || are binary operators while ^ is a unary right operator which can be compared to identation.
+
+// The simplest logical path is a 'Pure Declaration', writed informally. Is the zero-prompt.
+// An 'End Point Declaration' is a logical path that ends in a declaration. 
+// A 'Logical Mesh' is a logical path that don't ends in a declaration. Used to set the structure.
+// 'Definition' is a sentence using the := operator 
+// 'Open Path' is a logical path terminated with ?, which means that is under construction (on the human perspective), or should be suggested by the artificial intelligence. While constructing a DSL Logic, it is very useful to leave open paths, so you can delay decisions that can be influenced by other parts. 
+// Functional Declaration, is a informal description of a function or a task and has the form 'X ()' but with X a informal description. 
+
+/// SHORTER VERSION 
+// This is a semiformal declarative language DSL, although there is symbols, the names and descriptions must be interpreted and adapted to create a functional application. A sequence of expressions in DSL which describe the logic of a program or component is called DSL Logic. A DSL Logic has a starting line called head and a sequence of directives called logical paths. 
+1. N. with N as a number, or ->, this is an annotation for the start of a logical path. 
+2. [ Name or Application Description ], this part resumes the objetive of the DSL Logic.
+3. { Context of Application }, this part along with the objective is called the head of DSL Logic.
+4. X := Description, the operator := indicates that X is a shorter alias for a larger description. 
+5. X ~ Y, means that X is an event or task and Y is a declarative expression of how the event should be processed. 
+6. X || Y means that Y is inside the structure of X, is in his scope. 
+7. X | Y means that X and Y stands in the same scope (structure) and Y is performed after X. 
+8. & X, means that X is an repetition structure. 
+9. X (), denote that X is a function or a task. If it is an actual function depends of implementation. 
+10. % X, denote that X belongs to an conditional structure (if-elseif-else) or a switch structure.
+11. $ X, denotes that X is a directive for construction of a object/variable. If it is a declaration or definition (initialization) is to be decided by the A.I.
+12. X {}, denotes that X is a class structure.    
+13. X : Y {}, denotes that X is a class derived from Y.
+14. Logical Path { Context }, a context can be used in the end of a Logical Path. It's used to tell the A.I. to use specific library functions or to tell things that don't fit with DSL formalism. 
+// The simplest logical path is a 'Pure Declaration', writed informally. Is the zero-prompt.
+// An 'End Point Declaration' is a logical path that ends in a declaration. 
+// A 'Logical Mesh' is a logical path that don't ends in a declaration. Used to set the structure.
+// 'Definition' is a sentence using the := operator 
+// 'Open Path' is a logical path terminated with ?, which means that is under construction (on the human perspective), or should be suggested by the artificial intelligence. While constructing a DSL Logic, it is very useful to leave open paths, so you can delay decisions that can be influenced by other parts. 
+// Functional Declaration, is a informal description of a function or a task and has the form 'X ()' but with X as an informal description. 
+// DSL Encoding - Is the process of creating the DSL from a function or program. 
+// DSL Decoding - Is the process of creating an implementation from DSL Logic instructions. 
+
+
+// -- 
+Explains step-by-step the creation of the application. 
+
+// -- 
+Don't show the code for now, just tell me how to configure the project and create the suggested files. 
+
+// -- 
+Wait for further instructions. 
+
+// -- 
+Now I want to see the code implementation. But don't show me everthing, only the files I mentioned here: ... 
+
+// -- 
+Now I want to see the code implementation. But don't show me everthing, only the parts that I should change. 
+
+// --- Application to DSL : Useful for Project Refactoring --- The A.I. isn't very good to create DSL's, because DSL is for human understanding ;) and the A.I. wasn't trained to create this kind of documents. 
+Using the code below, build the DSL Logic. 
+
+// ----------------------------------------------------------------------------- Examples -----------------------------------------------------------------------------
+
+[ Console Explorer ]{ Python, Console Application, Set as a Executable, Put Try Except clauses predicting folder opening denial and when a Exception occurs set the variables with the previous values }
+I := Imports
+G := Global Variables
+Iv := Initialize Variables
+St := Standart Output Display
+P := Process Command
+1. Start Application ~ I | G | Main () || Iv | & while not bExit || St () | P (input string)* 
+-> G || $ (list) file_and_folders_list | $ (int) current_file_index | $ (string) currentDirPath, parentDirPath | $ (dictionary) filename_to_last_index | $ (boolean) advance 
+-> G || $ (list) file_and_folders_list || initialize empty list 
+-> G || $ (list) file_and_folders_list | $ (int) current_file_index || initialize with zero
+-> G || $ (list) file_and_folders_list | $ (int) current_file_index | $ (string) currentDirPath, parentDirPath | $ (dictionary) filename_to_last_index || empty dictionary 
+-> G || $ (list) file_and_folders_list | $ (int) current_file_index | $ (string) currentDirPath, parentDirPath | $ (dictionary) filename_to_last_index | $ (boolean) advance || set true
+-> Iv || $? (string) currentDirPath | $? (boolean) bExit || initialize exit with false 
+-> Iv || $? (string) currentDirPath || initialize with current directory path 
+-> Iv || $? (string) currentDirPath | $? (boolean) bExit | $* file_and_folders_list || update with the currentDirPath with files and folders in current directory 
+2. St () || Clear Output | One Output Line "> (forward) , < (backward), . (enter dir) , .. (out dir)" | Empty Line | & (integer) file_and_folders_list || $ item | % item is a folder || % iteration index match current_file_index | % else || One Output Line "[ "+item+" ]" 
+-> St () || Clear Output | One Output Line "[ Console Explorer ] : > , < , . , .." | Empty Line | & (integer) file_and_folders_list | Empty Line 
+-> St () || ... | & (integer) file_and_folders_list || $ item | % item is a folder || % iteration index match current_file_index || One Output Line "--> [ "+item+" ]" 
+-> St () || ... | & (integer) file_and_folders_list || $ item || get the current item by iteration index from file_and_folders_list 
+-> St () || ... | & item in file_and_folders_list || % item is a folder | % else || % iteration index match current_file_index || One Output Line "--> "+item 
+-> St () || ... | & item in file_and_folders_list || % item is a folder | % else || % iteration index match current_file_index | % else || One Output Line item 
+I1 := current_file_index+1 is on the file_and_folders_list boundaries
+I2 := current_file_index-1 is on the file_and_folders_list boundaries
+Uf := check if current_file_index is on file_and_folders_list boundaries if not set current_file_index to zero 
+UL := Update the list file_and_folders_list with the files on currentDirPath
+Ud := Update the filename_to_last_index with currentDirPath key and value current_file_index 
+-> P () || Ud | % exit | % '>' || Uf | % I1 | current_file_index++ | $* advance || true 
+-> P () || Ud | % exit | % '>' | % '<' || Uf | % I2 | current_file_index-- | $* advance || false 
+I3 := check if the current_file_index points to a folder in file_and_folders_list 
+-> P () || Ud | % exit | % '>' | % '<' | % '.' || Uf | % I3 || $* currentDirPath, parentDirPath, current_file_index || update parentDirPath with currentDirPath and currentDirPath with the full path of the folder pointed by current_file_index on file_and_folders_list | set current_file_index to the value stored on filename_to_last_index or set to zero | UL
+-> P () || Ud | % exit | % '>' | % '<' | % '.' | % '..' || Uf | $* currentDirPath, parentDirPath, current_file_index || update currentDirPath with parentDirPath and parentDirPath with the full path of the parent folder of currentDirPath | set current_file_index to the value stored on filename_to_last_index or set to zero | UL
+-> P () || Ud | % exit | % '>' | % '<' | % '.' | % '..' | % empty string || % advance || % I1 ||current_file_index++ 
+-> P () || Ud | % exit | % '>' | % '<' | % '.' | % '..' | % empty string || % advance | % else || % I2 | current_file_index-- 
+-> P () || Ud | % exit || set bExit true 
+
+[ Side Panel ] { Qt, Python, The Application is a Windows Desktop Side Panel in Right Part of the Screen, Translucent 60 percent } 
+I := Imports 
+A := Main Application Object 
+C := Main Window Creation /QtSidePanel_Grok.pyw || I | A | C | Show Window | Start Event Loop 
+-> A || $ (QApplication) App 
+-> C || $ (QMainWindow) MainWindow | Set title "Side Panel App" | Set Black Background | Set White Text | $ (IconListView) list_view || list_view occupy the client area { The Height of Application must be 65 percent of screen height } 
+-> IconListView : QListView {}? || ... | Right Mouse Button Handle () | Keydown Handle () 
+-> IconListView : QListView {}? || ... | Right Mouse Button Handle () || Open a Dialog to Search for any files or applications | % Selected a File or Application with Dialog || Add an Icon Image to this list view | Adjust the Height to the Listview making more compact 
+-> IconListView : QListView {}? || ... | Right Mouse Button Handle () | Keydown Handle () || % escape pressed || % Confirmation Dialog || exit properly the program 
+-> IconListView : QListView {}? || ... | Right Mouse Button Handle () | Keydown Handle () || % escape pressed | % delete pressed || remove selected itens from listview 
+-> IconListView : QListView {}? || ... | Right Mouse Button Handle () | Keydown Handle () || % escape pressed | % delete pressed || remove selected itens from listview 
+Double Click on Item of Listview ~ Execute the Application or Open the File with Default Application 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

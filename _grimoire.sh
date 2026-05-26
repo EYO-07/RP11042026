@@ -588,18 +588,477 @@
 # 19. b:1 / b:2 / b:3 // Mouse buttons (1=Left, 2=Middle, 3=Right).
 # 20. b:4 / b:5 // Mouse wheel scrolling (4=Up, 5=Down).
 
-# Inventory [ ... ]
+# Inventory [ VPN ] { Linux }
 # -> ps auxf ; list all processes 
-# -> sudo systemctl enable SERVICE // enable service 
-# -> sudo systemctl start SERVICE // start service 
+# -> sudo systemctl enable SERVICE // enable service X disable 
+# -> sudo systemctl start SERVICE // start service X stop 
 # -> sudo systemctl restart SERVICE // start service 
 # -> /etc/network/interfaces // location of default config for ifupdown network interface 
+# -> journalctl -u NetworkManager
+# -> cat /etc/NetworkManager/NetworkManager.conf
+# -> networking // default service for network 
+# -> nmcli device status // 
+# -> nmcli device wifi list
+# -> nmcli device wifi connect "SSID" password "password"
+# -> nmcli device connect eth0 // wired 
+# -> sudo apt install proton-vpn-cli
+# -> protonvpn signin [username]
+# -> protonvpn connect
+# -> protonvpn connect --country [Country]
+# -> protonvpn connect [server name]
+# -> protonvpn disconnect
+# -> protonvpn signout
 
+# Inventory [ 7z ] { Linux, Terminal }
+# SYNTAX // SHORT_DESCRIPTION
+# 1. 7z x COMPRESSEDFILE -oFOLDERPATH // Extract the COMPRESSEDFILE into FOLDERPATH
+# 2. 7z a ARCHIVE_NAME FILES_TO_ADD // Add FILES_TO_ADD to ARCHIVE_NAME (creates if missing)
+# 3. 7z l ARCHIVE_NAME // List contents of ARCHIVE_NAME without extracting
+# 4. 7z t ARCHIVE_NAME // Test ARCHIVE_NAME for integrity/errors
+# 5. 7z e COMPRESSEDFILE -oFOLDERPATH // Extract files to FOLDERPATH without preserving directory structure
+# 6. 7z u ARCHIVE_NAME NEW_FILES // Update ARCHIVE_NAME with NEW_FILES (adds new or replaces older)
+# 7. 7z d ARCHIVE_NAME FILE_TO_DELETE // Delete FILE_TO_DELETE from ARCHIVE_NAME
+# 8. 7z h ARCHIVE_NAME // Calculate CRC checksum/hash for ARCHIVE_NAME
+# 9. 7z rn ARCHIVE_NAME OLD_NAME NEW_NAME // Rename OLD_NAME to NEW_NAME inside ARCHIVE_NAME
+# 10. 7z m ARCHIVE_NAME FILE_TO_MOVE // Move FILE_TO_MOVE into ARCHIVE_NAME (deletes from source)
 
+# INVENTORY: Linux Checksum Tools (Terminal)
+# Standard Coreutils (Pre-installed)
+# --------------------------------------------
+# sha256sum <file>   # SHA-256 (256-bit) - Standard for security
+# md5sum <file>      # MD5 (128-bit)     - Fast, cryptographically broken
+# sha1sum <file>     # SHA-1 (160-bit)   - Deprecated, used in Git
+# sha384sum <file>   # SHA-384 (384-bit) - Stronger than SHA-256
+# sha512sum <file>   # SHA-512 (512-bit) - Very strong, large files
+# sha224sum <file>   # SHA-224 (224-bit) - Truncated SHA-256 variant
+# b2sum <file>       # BLAKE2b (512-bit) - Modern, fast, highly secure
+# cksum <file>       # CRC-32            - Error detection (not security)
+# sum <file>         # BSD/SysV          - Legacy checksum
+#
+# Verification Mode
+# --------------------------------------------
+# <tool> -c <hashfile>  # Verify checksums against a file
+# Example: sha256sum -c checksums.sha256
+#
+# Notes
+# --------------------------------------------
+# - All tools read files in binary mode by default.
+# - SHA-256 is the recommended default for most use cases.
+# - MD5/SHA1 should only be used for non-security integrity checks.
+# ============================================
 
+# Logic [ startx ]
+# -> startx || ~/.xinitrc | /etc/X11/xinit/xinitrc || /etc/X11/Xsession 
+# -> startx || ~/.xinitrc | /etc/X11/xinit/xinitrc || /etc/X11/Xsession 
 
+# -> sudo update-alternatives --config x-session-manager
+# sudo apt install arandr
 
+# #!/bin/sh
+# # Source the system Xsession script to get all default behaviors
+# . /etc/X11/Xsession
 
+# Inventory [ initramfs ] { Linux }
+# update-initramfs -u // Update current initramfs for running kernel
+# update-initramfs -u -k all // Update initramfs for all installed kernels
+# update-initramfs -u -k <KERNEL_VERSION> // Update specific kernel initramfs
+# update-initramfs -c -k <KERNEL_VERSION> // Create new initramfs image
+# update-initramfs -d -k <KERNEL_VERSION> // Delete initramfs image
+# update-initramfs -k all -u // Regenerate all initramfs images
+# lsinitramfs /boot/initrd.img-<KERNEL_VERSION> // List contents of initramfs image
+# unmkinitramfs /boot/initrd.img-<KERNEL_VERSION> <OUTPUT_DIR> // Extract initramfs image
+# mkinitramfs -o /boot/initrd.img-<KERNEL_VERSION> <KERNEL_VERSION> // Manually generate initramfs image
+# mkinitramfs -o initramfs.img // Generate initramfs in current directory
+# dracut --force // Regenerate initramfs using dracut
+# dracut --force /boot/initramfs-<KERNEL_VERSION>.img <KERNEL_VERSION> // Generate specific dracut image
+# cat /etc/initramfs-tools/modules // View modules loaded during boot
+# nano /etc/initramfs-tools/modules // Edit initramfs module list
+# echo <MODULE_NAME> >> /etc/initramfs-tools/modules // Add kernel module to initramfs
+# modprobe <MODULE_NAME> // Load kernel module immediately
+# ls /etc/initramfs-tools/ // List initramfs-tools configuration files
+# ls /usr/share/initramfs-tools/ // List default initramfs scripts/hooks
+# nano /etc/initramfs-tools/initramfs.conf // Configure initramfs behavior
+# nano /etc/initramfs-tools/modules // Configure boot modules
+# nano /etc/initramfs-tools/conf.d/<FILE> // Add custom initramfs configuration
+# update-grub // Regenerate GRUB config after initramfs changes
+# file /boot/initrd.img-<KERNEL_VERSION> // Detect initramfs file type
+# ls -lh /boot/initrd.img-* // List installed initramfs images
+# cp /boot/initrd.img-<KERNEL_VERSION> backup.img // Backup initramfs image
+# mv backup.img /boot/initrd.img-<KERNEL_VERSION> // Restore initramfs backup
+# gzip -dc /boot/initrd.img-<KERNEL_VERSION> | cpio -it // List compressed initramfs contents
+# gzip -dc /boot/initrd.img-<KERNEL_VERSION> | cpio -id // Extract compressed initramfs contents
+# uname -r // Show running kernel version
+# ls /lib/modules // List installed kernel module directories
+# update-initramfs -u -v // Update initramfs with verbose output
+# mkinitramfs -v -o initramfs.img // Generate verbose initramfs image
+# dmesg | grep initramfs // Show initramfs-related boot logs
+# journalctl -b | grep initramfs // Show initramfs logs from current boot
+# /etc/initramfs-tools/hooks/ // Directory for custom initramfs hooks
+# /etc/initramfs-tools/scripts/ // Directory for custom initramfs boot scripts
+# chmod +x /etc/initramfs-tools/hooks/<SCRIPT> // Make custom hook executable
+# chmod +x /etc/initramfs-tools/scripts/<SCRIPT> // Make custom script executable
+# update-initramfs -u && reboot // Regenerate initramfs and reboot system
+
+# Inventory [ Commands on initramfs ] { Linux }
+# help // Show available initramfs shell commands
+# exit // Leave initramfs shell and continue boot
+# reboot // Reboot system from initramfs shell
+# poweroff // Shutdown system from initramfs shell
+# ls // List directory contents
+# ls /dev // List detected devices
+# ls /sys // List sysfs entries
+# ls /proc // List procfs entries
+# cd <DIR> // Change current directory
+# pwd // Show current directory
+# cat <FILE> // Display file contents
+# less <FILE> // View file with pager
+# more <FILE> // View file page by page
+# echo <TEXT> // Print text output
+# clear // Clear terminal screen
+# mount // List mounted filesystems
+# mount <DEVICE> <DIR> // Mount filesystem manually
+# umount <DIR> // Unmount filesystem
+# blkid // Show block device UUIDs and filesystem types
+# lsblk // List block devices and partitions
+# fdisk -l // Show partition tables
+# fsck <DEVICE> // Check filesystem integrity
+# fsck.ext4 <DEVICE> // Check ext4 filesystem
+# e2fsck -f <DEVICE> // Force ext filesystem check
+# mkdir <DIR> // Create directory
+# rm <FILE> // Remove file
+# rm -r <DIR> // Remove directory recursively
+# cp <SRC> <DST> // Copy files
+# mv <SRC> <DST> // Move or rename files
+# modprobe <MODULE> // Load kernel module
+# rmmod <MODULE> // Remove loaded module
+# lsmod // List loaded kernel modules
+# modinfo <MODULE> // Show module information
+# dmesg // Show kernel boot messages
+# dmesg | less // Browse kernel logs
+# dmesg | grep <TEXT> // Search kernel messages
+# cat /proc/cmdline // Show kernel boot parameters
+# cat /proc/modules // Show loaded modules
+# cat /proc/filesystems // Show supported filesystems
+# ip addr // Show network interfaces
+# ip link // Show network links
+# ip route // Show routing table
+# dhclient <INTERFACE> // Request DHCP address
+# ping <HOST> // Test network connectivity
+# uname -r // Show running kernel version
+# uname -a // Show kernel/system information
+# chroot <DIR> // Change root into mounted system
+# chroot /mnt // Enter repaired root filesystem
+# mount /dev/<ROOT_PARTITION> /mnt // Mount root partition
+# mount --bind /dev /mnt/dev // Bind mount /dev into chroot
+# mount --bind /proc /mnt/proc // Bind mount /proc into chroot
+# mount --bind /sys /mnt/sys // Bind mount /sys into chroot
+# update-initramfs -u // Regenerate initramfs from chroot
+# update-grub // Regenerate GRUB config from chroot
+# cryptsetup luksOpen <DEVICE> <NAME> // Open encrypted LUKS device
+# vgchange -ay // Activate LVM volume groups
+# lvscan // Scan logical volumes
+# busybox // Launch BusyBox shell
+# sh // Launch shell interpreter
+# resume // Attempt resume from hibernation device
+# panic // Trigger kernel panic (debugging)
+# sync // Flush filesystem buffers to disk
+
+# Inventory [ apt / apt-get / dpkg ] { Linux, Debian }
+# 1. apt update // Download latest package indexes from repositories
+# 2. apt upgrade // Upgrade installed packages to newer versions
+# 3. apt full-upgrade // Upgrade packages and resolve dependency changes
+# 4. apt install PACKAGE // Install package from configured repositories
+# 5. apt install PACKAGE1 PACKAGE2 // Install multiple packages at once
+# 6. apt remove PACKAGE // Remove package but keep configuration files
+# 7. apt purge PACKAGE // Remove package including configuration files
+# 8. apt autoremove // Remove unused dependency packages
+# 9. apt autoclean // Remove obsolete downloaded package files
+# 10. apt clean // Remove all cached package archives
+# 11. apt search KEYWORD // Search repositories for matching packages
+# 12. apt show PACKAGE // Display detailed package information
+# 13. apt list --installed // List all installed packages
+# 14. apt list --upgradable // List packages with available upgrades
+# 15. apt policy PACKAGE // Show package version and repository priority
+# 16. apt reinstall PACKAGE // Reinstall an already installed package
+# 17. apt download PACKAGE // Download package without installing it
+# 18. apt-mark hold PACKAGE // Prevent package from being upgraded
+# 19. apt-mark unhold PACKAGE // Allow package upgrades again
+# 20. apt edit-sources // Edit repository source configuration
+# 21. apt-cache search KEYWORD // Search local package cache
+# 22. apt-cache depends PACKAGE // Show package dependencies
+# 23. apt-cache rdepends PACKAGE // Show packages depending on target package
+# 24. apt-cache policy PACKAGE // Display package source and priority details
+# 25. apt-cache madison PACKAGE // List all available package versions
+# 26. apt-get update // Download latest package indexes from repositories
+# 27. apt-get upgrade // Upgrade installed packages
+# 28. apt-get dist-upgrade // Upgrade system handling dependency changes
+# 29. apt-get install PACKAGE // Install package from repositories
+# 30. apt-get remove PACKAGE // Remove installed package
+# 31. apt-get purge PACKAGE // Remove package and configuration files
+# 32. apt-get autoremove // Remove unnecessary dependency packages
+# 33. apt-get source PACKAGE // Download package source code
+# 34. apt-get build-dep PACKAGE // Install dependencies required for building package
+# 35. apt-get check // Check package database for broken dependencies
+# 36. apt-get -f install // Attempt to repair broken dependencies
+# 37. dpkg -i FILE.deb // Install local .deb package file
+# 38. dpkg -r PACKAGE // Remove installed package
+# 39. dpkg -P PACKAGE // Purge package and configuration files
+# 40. dpkg -l // List installed packages
+# 41. dpkg -l PACKAGE // Show installation status of package
+# 42. dpkg -L PACKAGE // List files installed by package
+# 43. dpkg -S FILE // Find package owning specific file
+# 44. dpkg --configure -a // Configure unfinished package installations
+# 45. dpkg --get-selections // List package installation selections
+# 46. dpkg-reconfigure PACKAGE // Reconfigure installed package settings
+# 47. dpkg-query -W PACKAGE // Query package installation information
+# 48. dpkg-deb -c FILE.deb // List contents of .deb package file
+# 49. dpkg-deb -I FILE.deb // Display metadata from .deb package
+# 50. dpkg --add-architecture ARCH // Enable support for foreign architecture
+# 51. dpkg --print-architecture // Show primary system architecture
+# 52. dpkg --print-foreign-architectures // List enabled foreign architectures
+# 53. apt install ./FILE.deb // Install local .deb with dependency resolution
+# 54. apt remove --purge PACKAGE // Remove package and delete configurations
+# 55. apt-cache pkgnames // List all available package names
+# 56. apt-file search FILE // Find package containing specified file
+# 57. apt-file update // Update apt-file search database
+# 58. apt-key list // List trusted repository signing keys (deprecated)
+# 59. apt-key add KEY.gpg // Add trusted repository signing key (deprecated)
+# 60. apt-config dump // Display current apt configuration
+# 61. apt-cache show PACKAGE // Show complete package description
+# 62. apt-get clean // Delete all downloaded package archives
+# 63. apt-get autoclean // Delete outdated package archives
+# 64. apt-cache stats // Display package cache statistics
+# 65. dpkg-statoverride --list // List custom file permission overrides
+# 66. dpkg-divert --list // List diverted system files
+# 67. apt update && apt upgrade // Update package indexes and upgrade system
+# 68. apt install --reinstall PACKAGE // Force reinstallation of package
+# 69. apt purge '~c' // Remove leftover configuration files
+# 70. apt-cache unmet // Show unresolved package dependencies
+
+# Inventário [ Combinação de Comandos de Terminal ] { Linux, Debian }
+# 1. COMANDO & ; Execução independente do terminal.
+# 2. COMANDO1 && COMANDO2 ; Execução de dois comandos sequenciais.
+# 3. COMANDO1 | COMANDO2 ; Pipe, a saída de texto do comando 1 é usado como argumento para o comando 2.
+
+# Inventory [ Checksums ] { Linux, Debian }
+
+# Inventário [ Serviços ] { Linux, systemd }
+# 1. systemctl list-units --type=service ; lista os serviços ativos carregados pelo systemd.
+# 2. systemctl list-units --type=service --all ; lista todos os serviços, incluindo inativos.
+# 3. systemctl list-unit-files --type=service ; lista os arquivos de serviços instalados.
+# 4. systemctl status SERVICO ; exibe status detalhado do serviço.
+# 5. systemctl start SERVICO ; inicia um serviço.
+# 6. systemctl stop SERVICO ; interrompe um serviço.
+# 7. systemctl restart SERVICO ; reinicia um serviço.
+# 8. systemctl reload SERVICO ; recarrega configuração sem reiniciar o processo.
+# 9. systemctl reload-or-restart SERVICO ; recarrega configuração ou reinicia o serviço.
+# 10. systemctl try-restart SERVICO ; reinicia apenas se o serviço estiver em execução.
+# 11. systemctl enable SERVICO ; habilita inicialização automática no boot.
+# 12. systemctl disable SERVICO ; desabilita inicialização automática no boot.
+# 13. systemctl enable --now SERVICO ; habilita e inicia imediatamente o serviço.
+# 14. systemctl disable --now SERVICO ; desabilita e interrompe imediatamente o serviço.
+# 15. systemctl is-enabled SERVICO ; verifica se o serviço inicia automaticamente.
+# 16. systemctl is-active SERVICO ; verifica se o serviço está em execução.
+# 17. systemctl mask SERVICO ; impede qualquer inicialização do serviço.
+# 18. systemctl unmask SERVICO ; remove bloqueio de inicialização do serviço.
+# 19. systemctl daemon-reload ; recarrega definições de unidades do systemd.
+# 20. systemctl daemon-reexec ; reinicializa o processo do systemd.
+# 21. systemctl cat SERVICO ; exibe conteúdo do arquivo de unidade do serviço.
+# 22. systemctl edit SERVICO ; cria override/customização para o serviço.
+# 23. systemctl revert SERVICO ; remove overrides/customizações locais do serviço.
+# 24. systemctl show SERVICO ; mostra propriedades detalhadas do serviço.
+# 25. systemctl show -p PROPERTY SERVICO ; exibe propriedade específica do serviço.
+# 26. systemctl list-dependencies SERVICO ; lista dependências do serviço.
+# 27. systemctl kill SERVICO ; envia sinal para processos do serviço.
+# 28. systemctl reset-failed ; limpa estado de falha de serviços.
+# 29. systemctl reset-failed SERVICO ; limpa estado de falha de um serviço específico.
+# 30. journalctl -u SERVICO ; exibe logs do serviço.
+# 31. journalctl -u SERVICO -f ; acompanha logs em tempo real.
+# 32. journalctl -u SERVICO --since today ; exibe logs do serviço desde hoje.
+# 33. journalctl -xe ; exibe logs recentes e erros detalhados do sistema.
+# 34. systemd-analyze blame ; mostra tempo de inicialização de serviços.
+# 35. systemd-analyze critical-chain ; exibe cadeia crítica de inicialização.
+# 36. service SERVICO start ; inicia serviço usando interface compatível SysV.
+# 37. service SERVICO stop ; interrompe serviço usando interface compatível SysV.
+# 38. service SERVICO restart ; reinicia serviço usando interface compatível SysV.
+# 39. service SERVICO status ; exibe status usando interface compatível SysV.
+# 40. chkconfig --list ; lista serviços em sistemas SysV antigos.
+# 41. update-rc.d SERVICO enable ; habilita serviço em sistemas compatíveis SysV.
+# 42. update-rc.d SERVICO disable ; desabilita serviço em sistemas compatíveis SysV.
+# 43. loginctl list-sessions ; lista sessões gerenciadas pelo systemd-logind.
+# 44. loginctl terminate-session ID ; encerra sessão específica.
+# 45. loginctl kill-user USUARIO ; encerra processos do usuário.
+# 46. systemctl --user list-units ; lista serviços do usuário atual.
+# 47. systemctl --user start SERVICO ; inicia serviço no escopo do usuário.
+# 48. systemctl --user enable SERVICO ; habilita serviço do usuário no login.
+# 49. timedatectl ; exibe status de data, hora e timezone.
+# 50. hostnamectl ; exibe ou altera hostname do sistema.
+# 51. localectl ; exibe ou altera configurações de locale e teclado.
+# 52. busctl ; interage com barramento D-Bus do systemd.
+# 53. systemd-cgls ; exibe árvore de control groups (cgroups).
+# 54. systemd-cgtop ; monitora uso de recursos por cgroups.
+# 55. systemctl rescue ; entra em modo de recuperação (single-user).
+# 56. systemctl isolate multi-user.target ; alterna para modo texto multiusuário.
+# 57. systemctl isolate graphical.target ; alterna para modo gráfico.
+# 58. systemctl get-default ; mostra target padrão de inicialização.
+# 59. systemctl set-default multi-user.target ; define boot em modo texto.
+# 60. systemctl set-default graphical.target ; define boot em modo gráfico.
+
+# Inventário [ picom ] { Linux, Debian }
+# ============================================================
+# -- terminal --
+# ============================================================
+# 1. apt install picom ; instala o pacote do compositor picom.
+# 2. picom ; executa o picom com a configuração padrão.
+# 3. picom --config ~/.config/picom/picom.conf & ; executa em segundo plano usando um arquivo de configuração específico.
+# 4. picom --experimental-backends ; ativa backends experimentais.
+# 5. picom --backend glx ; executa utilizando backend GLX.
+# 6. picom --backend xrender ; executa utilizando backend XRender.
+# 7. picom --vsync ; ativa sincronização vertical.
+# 8. picom --no-vsync ; desativa sincronização vertical.
+# 9. picom --log-level INFO ; define nível de log.
+# 10. picom --log-file ~/.config/picom/picom.log ; salva logs em arquivo.
+# 11. picom --diagnostics ; exibe informações de diagnóstico.
+# 12. pkill picom ; encerra todas as instâncias do picom.
+# 13. killall picom ; encerra processos do picom.
+# 14. pgrep picom ; verifica se o picom está em execução.
+# 15. picom --config /dev/null ; executa sem arquivo de configuração.
+# 16. picom --dbus ; ativa suporte DBus.
+# 17. picom --daemon ; executa como daemon em segundo plano.
+# 18. picom --benchmark 200 ; executa benchmark de renderização.
+# 19. picom --help ; exibe ajuda.
+# 20. man picom ; abre manual do picom.
+# ============================================================
+# -- arquivos --
+# ============================================================
+# 1. ~/.config/picom/picom.conf ; arquivo principal de configuração do usuário.
+# 2. /etc/xdg/picom.conf ; configuração global do sistema.
+# 3. ~/.config/picom/ ; diretório de configuração do usuário.
+# 4. ~/.config/picom/picom.log ; arquivo de logs personalizado.
+# ============================================================
+# -- integração com i3 --
+# ============================================================
+# 1. exec --no-startup-id picom ; inicia automaticamente no i3.
+# 2. exec_always --no-startup-id picom --config ~/.config/picom/picom.conf ; reinicia após reload do i3.
+# 3. bindsym $mod+Shift+p exec pkill picom ; atalho para encerrar o compositor.
+# 4. bindsym $mod+p exec picom ; atalho para iniciar o compositor.
+# ============================================================
+# -- variáveis do arquivo de configuração --
+# ============================================================
+# ------------------------------------------------------------
+# -- backend e renderização --
+# ------------------------------------------------------------
+# 1. backend = "glx" ; # glx, xrender, xr_glx_hybrid // backend de renderização.
+# 2. vsync = true ; # true, false // ativa sincronização vertical.
+# 3. use-damage = true ; # true, false // atualiza apenas regiões alteradas.
+# 4. refresh-rate = 60 ; # inteiro // taxa de atualização do monitor.
+# 5. detect-client-opacity = true ; # usa opacidade definida pela aplicação.
+# 6. detect-transient = true ; # detecta janelas transitórias.
+# 7. detect-rounded-corners = true ; # detecta cantos arredondados.
+# 8. mark-wmwin-focused = true ; # marca janelas focadas pelo window manager.
+# 9. mark-ovredir-focused = true ; # considera override-redirect como focadas.
+# 10. unredir-if-possible = true ; # desativa composição em fullscreen.
+# 11. use-ewmh-active-win = true ; # usa EWMH para detectar foco.
+# 12. dbus = true ; # ativa integração DBus.
+# ------------------------------------------------------------
+# -- sombras --
+# ------------------------------------------------------------
+# 1. shadow = true ; # ativa sombras.
+# 2. shadow-radius = 12 ; # raio da sombra.
+# 3. shadow-offset-x = -12 ; # deslocamento horizontal.
+# 4. shadow-offset-y = -12 ; # deslocamento vertical.
+# 5. shadow-opacity = 0.75 ; # 0.0-1.0 // intensidade da sombra.
+# 6. shadow-red = 0.0 ; # componente vermelha da sombra.
+# 7. shadow-green = 0.0 ; # componente verde da sombra.
+# 8. shadow-blue = 0.0 ; # componente azul da sombra.
+# 9. shadow-ignore-shaped = false ; # ignora janelas com formato irregular.
+# 10. clear-shadow = true ; # remove sombras transparentes.
+# 11. shadow-exclude = [ ] ; # lista de exclusão de sombras.
+# ------------------------------------------------------------
+# -- opacidade --
+# ------------------------------------------------------------
+# 1. active-opacity = 1.0 ; # 0.0-1.0 // opacidade da janela focada.
+# 2. inactive-opacity = 0.9 ; # 0.0-1.0 // opacidade das janelas em segundo plano.
+# 3. frame-opacity = 1.0 ; # opacidade das bordas da janela.
+# 4. inactive-opacity-override = false ; # força opacidade inativa.
+# 5. inactive-dim = 0.1 ; # escurece janelas inativas.
+# 6. inactive-dim-fixed = true ; # usa valor fixo para escurecimento.
+# 7. opacity-rule = [ ] ; # regras específicas de opacidade.
+# ------------------------------------------------------------
+# -- blur --
+# ------------------------------------------------------------
+# 1. blur-method = "dual_kawase" ; # método de blur.
+# 2. blur-strength = 5 ; # intensidade do blur.
+# 3. blur-background = true ; # ativa blur no fundo.
+# 4. blur-background-frame = true ; # blur nas bordas.
+# 5. blur-background-fixed = false ; # blur fixo.
+# 6. blur-kern = "3x3box" ; # kernel de blur.
+# 7. blur-background-exclude = [ ] ; # exclusões do blur.
+# ------------------------------------------------------------
+# -- fading --
+# ------------------------------------------------------------
+# 1. fading = true ; # ativa animações de fade.
+# 2. fade-in-step = 0.03 ; # velocidade do fade-in.
+# 3. fade-out-step = 0.03 ; # velocidade do fade-out.
+# 4. fade-delta = 5 ; # intervalo entre frames do fade.
+# 5. no-fading-openclose = false ; # desativa fade em abrir/fechar.
+# 6. no-fading-destroyed-argb = false ; # fade em janelas ARGB destruídas.
+# ------------------------------------------------------------
+# -- cantos arredondados --
+# ------------------------------------------------------------
+# 1. corner-radius = 8 ; # raio dos cantos arredondados.
+# 2. rounded-corners-exclude = [ ] ; # exclusões de arredondamento.
+# 3. round-borders = 1 ; # arredonda bordas.
+# ------------------------------------------------------------
+# -- exclusões --
+# ------------------------------------------------------------
+# 1. shadow-exclude = [ "class_g = 'Conky'" ] ; # exclui sombras do Conky.
+# 2. fade-exclude = [ ] ; # exclui janelas do fade.
+# 3. focus-exclude = [ ] ; # exclui janelas da detecção de foco.
+# 4. blur-background-exclude = [ ] ; # exclui janelas do blur.
+# 5. unredir-if-possible-exclude = [ ] ; # exclusões do unredirect.
+# 6. opacity-rule = [ "90:class_g = 'Alacritty'" ] ; # regra de opacidade.
+# ============================================================
+# -- classes e propriedades X11 --
+# ============================================================
+# 1. class_g ; nome da classe da janela.
+# 2. class_i ; instância da janela.
+# 3. name ; título da janela.
+# 4. role ; role da janela.
+# 5. window_type ; tipo da janela.
+# 6. override_redirect ; janelas fora do controle do WM.
+# 7. focused ; verifica foco da janela.
+# ============================================================
+# -- utilitários relacionados --
+# ============================================================
+# 1. xprop ; inspeciona propriedades X11 de janelas.
+# 2. xwininfo ; exibe informações da janela.
+# 3. xdpyinfo ; exibe informações do servidor X.
+# 4. glxinfo ; exibe informações OpenGL/GLX.
+# 5. xrandr ; gerencia monitores e resolução.
+# 6. i3-msg reload ; recarrega configuração do i3.
+# 7. lxappearance ; configura temas GTK.
+# 8. nitrogen ; gerencia wallpaper.
+# 9. feh ; define wallpapers.
+# 10. xsetroot ; altera aparência do cursor/root window.
+# ============================================================
+# -- exemplos de regras --
+# ============================================================
+# 1. opacity-rule = [ "80:class_g = 'Alacritty'" ] ; define opacidade do Alacritty.
+# 2. shadow-exclude = [ "window_type = 'dock'" ] ; remove sombras de docks.
+# 3. blur-background-exclude = [ "window_type = 'desktop'" ] ; desativa blur da área de trabalho.
+# 4. focus-exclude = [ "class_g = 'Polybar'" ] ; ignora Polybar no foco.
+# 5. rounded-corners-exclude = [ "window_type = 'dock'" ] ; remove arredondamento de docks.
+# ============================================================
+# -- observações --
+# ============================================================
+# 1. picom funciona apenas em servidores X11.
+# 2. Wayland utiliza compositores próprios, não picom.
+# 3. backend GLX normalmente possui melhor desempenho gráfico.
+# 4. alguns drivers NVIDIA podem apresentar tearing sem vsync.
+# 5. blur pode aumentar uso de GPU.
+# 6. unredir-if-possible melhora desempenho em fullscreen.
+# 7. conflitos podem ocorrer com outros compositores ativos.
 
 
 # -- END
