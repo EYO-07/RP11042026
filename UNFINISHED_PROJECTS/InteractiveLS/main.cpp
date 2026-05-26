@@ -15,8 +15,7 @@ Options:
 int main(int argc, char *argv[]) {
     // -- components
     bool b_exit = false;
-    TermiosSettings settings;
-    Cleanup cleaner{&settings};
+    termios settings;
     TerminalExplorer Explorer = TerminalExplorer();
     // -- arguments 
     if (argc>1) { // processing argument options
@@ -32,9 +31,6 @@ int main(int argc, char *argv[]) {
                 b_exit = true;
                 break;
             }
-            //if( wstrArgument.starts_with(L"--grep") ) {
-            //    Explorer.setGrepArgs( split(wstrArgument, L'=').back() );
-            //}
         }
     }
     // -- start 
@@ -73,6 +69,8 @@ int main(int argc, char *argv[]) {
         }
     }
     // 
+end_main:
+    restoreMode(settings);
     return 0;
 }
 

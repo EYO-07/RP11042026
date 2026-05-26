@@ -20,12 +20,9 @@
 #include <locale>
 #include <set>
 
-// -- forward declarations 
-struct TermiosSettings;
-
 // -- function declarations
-bool disableRawMode(TermiosSettings& settings); // Disable echo and set raw mode
-void restoreMode(const TermiosSettings& settings); // Restore terminal settings
+bool disableRawMode(termios& settings); // Disable echo and set raw mode
+void restoreMode(const termios& settings); // Restore terminal settings
 void saveCursorPosition(); // Necessary for clearOutput to know where to start clearing 
 void clearOutput();
 bool commandOutput(std::wstring command, std::vector<std::wstring>& lines);
@@ -35,14 +32,6 @@ std::vector<std::string> split(const std::string& input, char delimiter);
 void openTerminal(const std::filesystem::path& path, const std::string& term);
 std::wstring utf8_to_wstring(const std::string& str);
 
-// -- classes and structs
-struct TermiosSettings { // Struct to store original terminal settings
-    termios original;
-};
-struct Cleanup { // Ensure restoration on exit
-    const TermiosSettings* s;
-    ~Cleanup() { restoreMode(*s); }
-};
 // 
 class TerminalExplorer {
 public:
@@ -59,7 +48,6 @@ public:
     void setGrepArgs(std::wstring arg) { this->grep_arg = arg; } // UNUSED 
     void selectFile();
     void clearSelectedFiles() { this->selected_files.clear(); }
-    // void removeLastSelectedFile() { this->selected_files.pop_back(); }
     void copyFiles(); // !
     void moveFiles(); // !
 protected:

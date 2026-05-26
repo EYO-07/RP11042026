@@ -4,11 +4,11 @@
 #include "CODEX_termios.h"
 
 // -- implementations 
-bool disableRawMode(TermiosSettings& settings) {
-    if (tcgetattr(STDIN_FILENO, &settings.original) != 0) {
+bool disableRawMode(termios& settings) {
+    if (tcgetattr(STDIN_FILENO, &settings) != 0) {
         return false;
     }
-    termios raw = settings.original;
+    termios raw = settings;
     // Disable canonical mode (line buffering) and echo
     raw.c_lflag &= ~(ICANON | ECHO);
     // Disable signals like Ctrl+C for custom handling if needed
@@ -18,8 +18,8 @@ bool disableRawMode(TermiosSettings& settings) {
     }
     return true;
 }
-void restoreMode(const TermiosSettings& settings) {
-    tcsetattr(STDIN_FILENO, TCSADRAIN, &settings.original);
+void restoreMode(const termios& settings) {
+    tcsetattr(STDIN_FILENO, TCSADRAIN, &settings);
     std::cout << "\n"; // Ensure a newline after exit
 }
 void saveCursorPosition() {
@@ -199,6 +199,7 @@ void TerminalExplorer::update() {
             if ( getIndex(this->currentDir)==0 )
                 this->path2index[this->currentDir] = 3;
         }
+        std::wstring current = L"";
         for(const std::wstring& item: this->lines) {
             if (item.empty()) break; 
             int index = getIndex(this->currentDir);
@@ -217,12 +218,16 @@ void TerminalExplorer::update() {
             }
             if ( index == it ) {
                 std::wcout << ">  " << item << "  <" << std::endl;
+                current = item;
             } else {
                 std::wcout << "   " << item << std::endl;
             }
             it++;
         }
+        std::wcout << std::endl;
+        std::wcout << "Current File/Folder: " << current << " ";
     }
+    
 }
 void TerminalExplorer::up(int step) {
     int count = 0;
@@ -254,10 +259,6 @@ void TerminalExplorer::left() {
 }
 void TerminalExplorer::right() {
     int index = this->getIndex(this->currentDir);
-    //if (index<0 || index >= this->raw_lines.size() ) return; 
-    //std::wstring str_path = split(this->raw_lines[index],L' ').back();
-    //std::filesystem::path path(str_path);
-    //if (!std::filesystem::exists(path)) return; 
     std::filesystem::path path = getPathFromLine(index);
     if (path.empty()) return;
     if (!std::filesystem::is_directory(path)) return;    
@@ -292,9 +293,10 @@ end:
 std::filesystem::path TerminalExplorer::getPathFromLine(int index) {
     std::wstring str_path = L"";
     std::filesystem::path path;
-    if (index<0 || index >= this->raw_lines.size() ) goto fail; 
-    // -- 
-    str_path = split(this->raw_lines[index],L' ').back();
+    if (index<0 || index >= this->raw_lines.size() ) goto fail;     
+    str_path = this->raw_lines[index];
+    if ( str_path.empty() ) goto fail;
+    str_path = split(str_path,L' ').back();
     if ( str_path.empty() ) goto fail;
     path = std::filesystem::path(str_path);
     if (path.empty()) goto fail;
