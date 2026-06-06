@@ -6,8 +6,10 @@ sudo pacman -Syu
 
 # -- 2. Internet e Rede
 # NetworkManager já deve estar instalado, mas garantimos o applet para a bandeja do i3.
-# sudo pacman -S --needed network-manager-applet net-tools
+# sudo pacman -S --needed network-manager-applet
 sudo pacman -S --needed net-tools
+sudo pacman -S --needed dnsmasq
+sudo pacman -S --needed wireless-regdb
 # Nota: 'nethogs' está nos repositórios oficiais também.
 # sudo pacman -S --needed nethogs
 
@@ -20,6 +22,7 @@ sudo pacman -S --needed linux-firmware
 # -- 4. Servidor Gráfico e Window Manager
 # Xorg e i3 estão nos repositórios principais.
 sudo pacman -S --needed xorg xorg-xinit xorg-apps
+sudo pacman -S --needed ttf-dejavu ttf-liberation xorg-xrandr xorg-xrdb   
 sudo pacman -S --needed i3-wm i3status i3lock dmenu
 sudo pacman -S --needed picom
 
@@ -46,11 +49,11 @@ sudo pacman -S --needed thunar
 sudo pacman -S --needed polkit-gnome
 sudo pacman -S --needed lxappearance
 sudo pacman -S --needed arandr # 'lxrandr' é antigo, 'arandr' é o padrão recomendado no Arch
-sudo pacman -S --needed p7zip
+sudo pacman -S --needed 7zip
 sudo pacman -S --needed firefox
 # Navegadores leves
 sudo pacman -S --needed falkon
-sudo pacman -S --needed qutebrowser
+# sudo pacman -S --needed qutebrowser
 
 # Ferramentas de Internet e Sistema
 sudo pacman -S --needed curl wget git
@@ -58,15 +61,15 @@ sudo pacman -S --needed htop btop
 sudo pacman -S --needed pavucontrol alsa-utils
 sudo pacman -S --needed feh scrot imagemagick
 # 'nitrogen' é muito popular no Arch para wallpapers no i3
-sudo pacman -S --needed nitrogen
+# sudo pacman -S --needed nitrogen
 
 # Editores e Utilitários
 sudo pacman -S --needed geany
-sudo pacman -S --needed obs-studio
+# sudo pacman -S --needed obs-studio
 # Wine (requer habilitar repositório multilib em /etc/pacman.conf se quiser 32-bit)
-sudo pacman -S --needed wine wine-mono wine-gecko winetricks
+# sudo pacman -S --needed wine wine-mono wine-gecko winetricks
 sudo pacman -S --needed evince
-sudo pacman -S --needed transmission-qt # Versão Qt é mais leve que a GTK as vezes, ou use 'transmission-gtk'
+# sudo pacman -S --needed transmission-qt # Versão Qt é mais leve que a GTK as vezes, ou use 'transmission-gtk'
 
 # -- 8. Temas e Ícones
 sudo pacman -S --needed adwaita-icon-theme
@@ -91,6 +94,8 @@ sudo pacman -S --needed ttf-dejavu ttf-liberation ttf-droid \
 
 # Atualizar cache de fontes
 fc-cache -fv
+
+sudo mkinitcpio -P # regenerate initramfs 
 
 # -- 11. Configuração Final do i3 (Opcional mas recomendado)
 # Adicionar programas ao inicio no ~/.config/i3/config
