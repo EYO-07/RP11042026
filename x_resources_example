@@ -1,0 +1,68 @@
+# BEGIN 
+
+! ---------------------------------------------------------
+! Debian Style Dark Mode (Tango Dark Palette)
+! ---------------------------------------------------------
+
+! --- Global Fonts & DPI ---
+Xft.dpi: 96
+Xft.antialias: true
+Xft.hinting: true
+Xft.hintstyle: hintslight
+Xft.rgba: rgb
+
+! --- XTerm Specific Settings ---
+xterm*faceName: Monospace
+xterm*faceSize: 11
+xterm*geometry: 80x24
+xterm*saveLines: 1000
+xterm*cursorBlink: true
+xterm*cursorColor: #FFFFFF
+xterm*selectToClipboard: true
+
+! --- Tango Dark Color Palette ---
+! Background & Foreground
+xterm*background: #2E3436
+xterm*foreground: #EEEEEC
+
+! Normal Colors (0-7)
+xterm*color0: #2E3436  ! Black
+xterm*color1: #CC0000  ! Red
+xterm*color2: #4E9A06  ! Green
+xterm*color3: #C4A000  ! Yellow
+xterm*color4: #3465A4  ! Blue
+xterm*color5: #75507B  ! Magenta
+xterm*color6: #06989A  ! Cyan
+xterm*color7: #D3D7CF  ! White
+
+! Bright Colors (8-15)
+xterm*color8: #555753  ! Bright Black
+xterm*color9: #EF2929  ! Bright Red
+xterm*color10: #8AE234 ! Bright Green
+xterm*color11: #FCE94F ! Bright Yellow
+xterm*color12: #729FCF ! Bright Blue
+xterm*color13: #AD7FA8 ! Bright Magenta
+xterm*color14: #34E2E2 ! Bright Cyan
+xterm*color15: #EEEEEC ! Bright White
+
+! --- URxvt Compatibility (if used) ---
+URxvt*background: #2E3436
+URxvt*foreground: #EEEEEC
+URxvt*color0: #2E3436
+URxvt*color1: #CC0000
+URxvt*color2: #4E9A06
+URxvt*color3: #C4A000
+URxvt*color4: #3465A4
+URxvt*color5: #75507B
+URxvt*color6: #06989A
+URxvt*color7: #D3D7CF
+URxvt*color8: #555753
+URxvt*color9: #EF2929
+URxvt*color10: #8AE234
+URxvt*color11: #FCE94F
+URxvt*color12: #729FCF
+URxvt*color13: #AD7FA8
+URxvt*color14: #34E2E2
+URxvt*color15: #EEEEEC   
+
+# END
