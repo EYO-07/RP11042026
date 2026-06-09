@@ -10,6 +10,22 @@
 # 4. Uncheck all but standart system utilities 
 # 5. Create a root password and a user+password 
 
+# Etapas de Instalação :
+# 1. Seleção de Interface de Instalação.
+# 2. Seleção de Linguagem de Instalação.
+# 3. Seleção de Linguagem , Localização, Teclado
+# 4. Configuração o de Rede
+# 5. Seleção de Endereços de Repositórios
+# 6. Registro de Hostname : Nome do Computador
+# 7. Registro de Dom ´ı nio : Desnecess ´a rio para uso dom ´e stico .
+# 8. Criação da senha para o root
+# 9. Criação do do login e senha para o primeiro usuário
+# 10. Configuração do Relógio pela Localização
+# 11. Particionamento
+# 12. Instalação Básica
+# 13. Seleção de Softwares Iniciais
+# 14. Instalação do Bootloader no MBR / ESP
+
 # -- DIALETICS -- 
 
 # -- INVENTORIES --
@@ -374,7 +390,7 @@
 # 18. stat FILE ; show file metadata
 # 19. du -h ; show directory size
 # 20. df -h ; show disk usage by filesystem
-# 21. mount DEVICE DIR ; mount filesystem
+# 21. mount DEVICE DIR ; mount filesystem, make the empty dir first 
 # 22. umount DEVICE ; unmount filesystem
 # 23. lsblk ; list block devices
 # 24. blkid ; show device UUIDs
@@ -600,6 +616,7 @@
 # -> nmcli device status // 
 # -> nmcli device wifi list
 # -> nmcli device wifi connect "SSID" password "password"
+# -> nmcli device wifi connect "SSID_NAME" password "PASSWORD" ifname wlan0   
 # -> nmcli device connect eth0 // wired 
 # -> sudo apt install proton-vpn-cli
 # -> protonvpn signin [username]
@@ -1059,6 +1076,302 @@
 # 5. blur pode aumentar uso de GPU.
 # 6. unredir-if-possible melhora desempenho em fullscreen.
 # 7. conflitos podem ocorrer com outros compositores ativos.
+
+# Inventory [ Control Structures ] { Linux, Bash }
+# -- conditional structures --
+# 1. if CONDITION ; then COMMANDS ; fi ; executes commands when condition is true.
+# 2. if CONDITION ; then COMMANDS ; else COMMANDS ; fi ; executes one block for true and another for false.
+# 3. if CONDITION ; then COMMANDS ; elif CONDITION ; then COMMANDS ; else COMMANDS ; fi ; evaluates multiple conditional branches sequentially.
+# 4. [ CONDITION ] ; evaluates a test expression using the test command syntax.
+# 5. [[ CONDITION ]] ; evaluates advanced conditional expressions with pattern matching and logical operators.
+# 6. test CONDITION ; evaluates a conditional expression using the test utility.
+# 7. COMMAND && COMMAND ; executes the second command only if the first succeeds.
+# 8. COMMAND || COMMAND ; executes the second command only if the first fails.
+# 9. ! COMMAND ; negates the exit status of a command or condition.
+#
+# -- comparison operators --
+# 10. [ STRING1 = STRING2 ] ; checks whether two strings are equal.
+# 11. [ STRING1 != STRING2 ] ; checks whether two strings are different.
+# 12. [ -z STRING ] ; checks whether a string is empty.
+# 13. [ -n STRING ] ; checks whether a string is not empty.
+# 14. [ INTEGER1 -eq INTEGER2 ] ; checks whether two integers are equal.
+# 15. [ INTEGER1 -ne INTEGER2 ] ; checks whether two integers are different.
+# 16. [ INTEGER1 -gt INTEGER2 ] ; checks whether the first integer is greater than the second.
+# 17. [ INTEGER1 -lt INTEGER2 ] ; checks whether the first integer is less than the second.
+# 18. [ INTEGER1 -ge INTEGER2 ] ; checks whether the first integer is greater than or equal to the second.
+# 19. [ INTEGER1 -le INTEGER2 ] ; checks whether the first integer is less than or equal to the second.
+#
+# -- file test operators --
+# 20. [ -e FILE ] ; checks whether a file or path exists.
+# 21. [ -f FILE ] ; checks whether a path is a regular file.
+# 22. [ -d DIRECTORY ] ; checks whether a path is a directory.
+# 23. [ -r FILE ] ; checks whether a file is readable.
+# 24. [ -w FILE ] ; checks whether a file is writable.
+# 25. [ -x FILE ] ; checks whether a file is executable.
+# 26. [ -s FILE ] ; checks whether a file exists and is not empty.
+#
+# -- loop structures --
+# 27. for VARIABLE in LIST ; do COMMANDS ; done ; iterates over a list of values.
+# 28. for (( INITIALIZATION ; CONDITION ; INCREMENT )) ; do COMMANDS ; done ; executes a C-style arithmetic loop.
+# 29. while CONDITION ; do COMMANDS ; done ; repeats commands while a condition remains true.
+# 30. until CONDITION ; do COMMANDS ; done ; repeats commands until a condition becomes true.
+# 31. select VARIABLE in LIST ; do COMMANDS ; done ; creates a simple interactive selection menu.
+#
+# -- loop control --
+# 32. break ; terminates the current loop immediately.
+# 33. continue ; skips the current iteration and proceeds to the next loop iteration.
+# 34. break N ; exits N nested loop levels.
+# 35. continue N ; resumes execution at the next iteration of the Nth enclosing loop.
+#
+# -- pattern matching and branching --
+# 36. case VALUE in PATTERN) COMMANDS ;; esac ; executes commands based on pattern matching rules.
+# 37. case VALUE in PATTERN1|PATTERN2) COMMANDS ;; esac ; matches multiple patterns in a single branch.
+# 38. *) COMMANDS ;; ; defines the default branch in a case structure.
+#
+# -- command grouping --
+# 39. { COMMANDS ; } ; groups commands in the current shell context.
+# 40. ( COMMANDS ) ; groups commands inside a subshell environment.
+#
+# -- functions --
+# 41. FUNCTION_NAME() { COMMANDS ; } ; defines a reusable shell function.
+# 42. function FUNCTION_NAME { COMMANDS ; } ; defines a function using the function keyword.
+# 43. return VALUE ; returns an exit status from a shell function.
+#
+# -- arithmetic structures --
+# 44. (( EXPRESSION )) ; evaluates arithmetic expressions directly in bash.
+# 45. $(( EXPRESSION )) ; expands the result of an arithmetic expression.
+#
+# -- input and execution control --
+# 46. read VARIABLE ; reads user input into a variable.
+# 47. exit STATUS ; terminates the current shell or script with a status code.
+# 48. trap COMMAND SIGNAL ; executes a command when a signal or event occurs.
+#
+# -- script flow helpers --
+# 49. source FILE ; executes commands from another file in the current shell.
+# 50. . FILE ; shorthand syntax for sourcing another shell script.
+
+# Inventory [ Avahi-Daemon ] { Linux, Debian }
+# 1. sudo apt install avahi-daemon
+# 2. sudo systemctl enable --now avahi-daemon
+
+# Inventory [ Samba ] { Linux, Debian }
+#
+# -- installation / packages --
+# 1. sudo apt install samba // installs the Samba server and SMB/CIFS sharing tools.
+# 2. sudo apt install smbclient // installs the SMB/CIFS command line client.
+# 3. sudo apt install cifs-utils // installs tools for mounting SMB/CIFS shares.
+# 4. samba --version // displays the installed Samba version.
+# 5. apt show samba // displays package information about Samba.
+#
+# -- services --
+# 6. systemctl status smbd // displays the Samba file sharing service status.
+# 7. systemctl status nmbd // displays the NetBIOS name service status.
+# 8. sudo systemctl start smbd // starts the Samba file sharing service.
+# 9. sudo systemctl stop smbd // stops the Samba file sharing service.
+# 10. sudo systemctl restart smbd // restarts the Samba file sharing service.
+# 11. sudo systemctl enable smbd // enables Samba service startup during boot.
+# 12. sudo systemctl disable smbd // disables Samba service startup during boot.
+# 13. sudo systemctl restart nmbd // restarts the NetBIOS name service.
+#
+# -- configuration files --
+# 14. /etc/samba/smb.conf // Samba default configuration file.
+# 15. testparm // validates the Samba configuration syntax.
+# 16. testparm /etc/samba/smb.conf // validates a specific Samba configuration file.
+# 17. sudo nano /etc/samba/smb.conf // edits the Samba configuration file.
+#
+# -- samba users / authentication --
+# 18. sudo smbpasswd -a USER // creates or enables a Samba password for a user.
+# 19. sudo smbpasswd USER // changes the Samba password for a user.
+# 20. sudo smbpasswd -x USER // removes a Samba user.
+# 21. pdbedit -L // lists Samba users.
+# 22. sudo pdbedit -a USER // adds a Samba user account.
+#
+# -- share examples --
+# 23. [SHARE_NAME] // defines a Samba shared resource section.
+# 24. path = /DIRECTORY/PATH // defines the shared directory path.
+# 25. browseable = yes // allows the share to appear in network browsers.
+# 26. read only = no // allows write access to the shared directory.
+# 27. guest ok = yes // allows guest access without authentication.
+# 28. valid users = USER // restricts access to specific users.
+# 29. create mask = 0755 // defines default permissions for created files.
+# 30. directory mask = 0755 // defines default permissions for created directories.
+#
+# -- example share configuration --
+# 31.
+# [Public]
+# path = /srv/samba/public
+# browseable = yes
+# read only = no
+# guest ok = yes
+# // example public share configuration.
+#
+# -- permissions / directories --
+# 32. sudo mkdir -p /srv/samba/public // creates a shared directory.
+# 33. sudo chmod 777 /srv/samba/public // grants full permissions to the shared directory.
+# 34. sudo chown -R USER:USER /srv/samba/public // changes ownership of the shared directory.
+#
+# -- firewall --
+# 35. sudo ufw allow samba // allows Samba traffic through the firewall.
+# 36. sudo ufw status // displays current firewall rules.
+#
+# -- network discovery / diagnostics --
+# 37. smbclient -L localhost -U USER // lists available Samba shares on the local machine.
+# 38. smbclient //SERVER/SHARE -U USER // connects to a remote Samba share.
+# 39. smbstatus // displays active Samba connections and locked files.
+# 40. net usershare list // lists user-defined Samba shares.
+# 41. hostname // displays the current system hostname used on the network.
+#
+# -- mounting samba shares --
+# 42. sudo mount -t cifs //SERVER/SHARE /mnt/share -o username=USER // mounts a Samba share manually.
+# 43. sudo umount /mnt/share // unmounts a mounted Samba share.
+#
+# -- fstab persistent mount example --
+# 44.
+# //SERVER/SHARE /mnt/share cifs username=USER,password=PASSWORD,uid=1000,gid=1000 0 0
+# // example persistent Samba mount entry for /etc/fstab.
+#
+# -- logs --
+# 45. /var/log/samba/ // Samba log directory.
+# 46. journalctl -u smbd // displays logs from the Samba service.
+# 47. journalctl -u nmbd // displays logs from the NetBIOS service.
+#
+# -- common samba ports --
+# 48. TCP 445 // SMB over TCP networking port.
+# 49. TCP 139 // NetBIOS session service port.
+# 50. UDP 137 // NetBIOS name service port.
+# 51. UDP 138 // NetBIOS datagram service port.
+#
+# -- useful concepts --
+# 52. SMB // Server Message Block network file sharing protocol.
+# 53. CIFS // Common Internet File System, older SMB implementation terminology.
+# 54. Samba // Linux implementation of SMB/CIFS services compatible with Windows networks.
+# 55. Workgroup // logical group of devices visible on the local network.
+
+# Inventory [ Shared Connection by Ethernet ] { NetworkManager, Linux, Debian }
+# 1. nmcli connection add type ethernet con-name shared-lan ifname eth1 ipv4.method shared 
+# 2. nmcli connection up shared-lan
+# 3. Set Shared-Lan Profile | Bring Connection Up | Connect 
+
+# [ Grub Update ]
+# 1. sudo update-grub // procura por novos os 
+# 2. grub-install /dev/sda ; reinstall grub for MBR partitions 
+# {arch}
+# 1. grub-install /dev/sda
+# 2. grub-mkconfig -o /boot/grub/grub.cfg   
+# 1. Install GRUB explicitly for BIOS/MBR
+#grub-install --target=i386-pc --recheck /dev/sda
+# 2. Enable OS detection (Edit /etc/default/grub)
+# Add: GRUB_DISABLE_OS_PROBER=false
+# 3. Generate config with multi-boot entries
+#grub-mkconfig -o /boot/grub/grub.cfg   
+
+# Inventory : Broadcom Issue { Linux }
+# 1. to /etc/modprobe.d/blacklist-broadcom.conf ... // blacklist b43, blacklist ssb, blacklist mac80211
+# 2. sudo update-initramfs -u // update initramfs 
+
+# Network Connection { Networking }
+# 1. ip a
+# 2. iw dev
+# 3. ip link set wlp2s0 up
+# 4. su -l
+# 5. iwlist scan
+# my wifi device
+# allow-hotplug wlp2s0
+# iface wlp2s0 inet dhcp
+#        wpa-ssid ESSID
+#        wpa-psk PASSWORD
+#
+# ifup wlp2s0
+# iw wlp2s0 link
+# ip a
+#
+# sudo nmcli radio wifi on
+# nmcli device wifi list 
+# nmcli -d wlan1 device wifi list
+# sudo nmcli device wifi connect "<SSID>" password "<YourPassword>"
+# sudo nmcli -d wlan1 device wifi connect "<SSID>" password "<YourPassword>"
+# nmcli connection show
+# nmcli connection delete "<ConnectionName>"
+#
+
+# [ Mouting a Iso ]
+# sudo mkdir -p /mnt/debian-iso
+# sudo mount -o loop /path/to/your/image.iso /mnt/debian-iso
+# deb file:/mnt/debian-iso bookworm main contrib non-free
+
+# sudo apt install libx11-dev   
+
+# Inventory : fonts 
+# sudo apt update
+# sudo apt install fonts-dejavu fonts-liberation fonts-noto fonts-noto-cjk fonts-wqy-zenhei fonts-wqy-microhei
+# sudo apt install fonts-msttcore
+# sudo apt install ttf-mscorefonts-installer
+# sudo fc-cache -fv
+# 
+
+# XKB library issue cmake 
+#sudo apt update
+# sudo apt install libxkbcommon-dev libxkbcommon-x11-dev   
+
+# Inventory : Autocompletion Customization { Linux, Bash }
+# 1. ~/.inputrc // GNU Readline configuration file for key bindings and variables
+# 2. Inventory // is a cheatsheet formated as comment-block 
+# 3. Inventory : NAME { CONTEXT } // NAME { CONTEXT } helps organize and identify inventories
+# --- CORE BEHAVIOR TWEAKS ---
+# 4. TAB: menu-complete // Cycles through completion matches one-by-one instead of listing all
+# 5. "\e[Z": menu-complete-backward // Binds Shift+Tab to cycle backwards through matches
+# 6. set show-all-if-ambiguous on // Lists all matches immediately on first Tab if >1 match exists
+# 7. set menu-complete-display-prefix on // Shows common prefix of all matches before cycling starts
+# 8. set completion-ignore-case on // Makes completion case-insensitive (e.g., "Doc" matches "documents")
+# 9. set colored-stats on // Colors completion matches by file type (like ls)
+# 10. set visible-stats on // Shows file size/permissions next to completion matches
+# 11. set completion-prefix-display-length 3 // Replaces long common prefixes with "..." after N chars
+# --- HISTORY SEARCH BINDINGS ---
+# 12. "\e[A": history-search-backward // Up Arrow searches history for lines starting with current text
+# 13. "\e[B": history-search-forward // Down Arrow searches history forward for current text prefix
+# 14. "\C-p": history-search-backward // Ctrl+P alternative binding for backward history search
+# 15. "\C-n": history-search-forward // Ctrl+N alternative binding for forward history search
+# --- ADVANCED / UTILITY BINDINGS ---
+# 16. "\C-u": universal-argument // Enables numeric arguments for subsequent commands (e.g., Ctrl-U 4 Ctrl-D deletes 4 chars)
+# 17. "\C-x*": insert-completions // Inserts all possible completions at once (wildcard expansion)
+# 18. set mark-symlinked-directories on // Appends '@' to symlinked directories during completion
+# 19. set mark-modified-lines on // Visual indicator in history for modified lines
+# 20. set expand-tilde on // Expands '~' to home directory during completion
+# --- ACTIVATION IN ~/.bashrc (Debian Specific) ---
+# 21. if [ -f /etc/bash_completion ]; then . /etc/bash_completion; fi // Enables programmable completion scripts
+# 22. source ~/.inputrc // Reloads Readline settings without restarting terminal (or use Ctrl-x Ctrl-r)
+# 23. apt install bash-completion // Installs the package providing advanced completion rules for Debian   
+
+# Inventário : comandos do instalador { Arch Linux }
+# 1. ls /sys/firmware/efi/efivars ; verifica se o boot está em modo UEFI
+# 2. ping archlinux.org ; testa a conexão com a internet
+# 3. loadkeys br-abnt ; configura layout do teclado para português brasileiro
+# 4. blkid ; lista o nome dos dispositivos de armazenamento
+# 5. fdisk -l ; lista discos e partições disponíveis no sistema
+# 12. swapon /dev/sdXY ; ativa a partição de swap
+# 13. mount /dev/sdXY /mnt ; monta partição raiz (/) em /mnt
+# 14. mount --mkdir /dev/sdXY /mnt/boot ; monta partição de boot
+# 15. pacstrap -K /mnt base linux linux-firmware ; instala sistema base no disco
+# 16. genfstab -U /mnt >> /mnt/etc/fstab ; gera arquivo de tabela de sistemas de arquivos
+# 17. arch-chroot /mnt ; alterna raiz para o novo sistema instalado
+# 18. ln -sf /usr/share/zoneinfo/Região/Cidade /etc/localtime ; define fuso horário
+# 19. hwclock --systohc ; sincroniza relógio de hardware com o sistema
+# 20. nano /etc/locale.gen ; edita arquivo para descomentar idioma desejado
+# 21. locale-gen ; gera as localizações configuradas
+# 22. echo "LANG=pt_BR.UTF-8" > /etc/locale.conf ; define idioma padrão do sistema
+# 23. echo "NOME_DO_HOST" > /etc/hostname ; define nome da máquina
+# 24. pacman -S networkmanager ; instala gerenciador de rede
+# 25. systemctl enable NetworkManager ; habilita serviço de rede na inicialização
+# 26. mkinitcpio -P ; regenera imagem de inicialização
+# 27. passwd ; define senha para o usuário root
+# 28. pacman -S grub efibootmgr ; instala bootloader GRUB e ferramentas UEFI
+# 29. grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB ; instala GRUB
+# 30. grub-mkconfig -o /boot/grub/grub.cfg ; gera arquivo de configuração do GRUB
+# 31. useradd -m -G wheel NOME_USUARIO ; cria novo usuário e adiciona ao grupo wheel
+# 32. passwd NOME_USUARIO ; define senha para o novo usuário
+# 33. EDITOR=nano visudo ; edita arquivo sudoers para conceder privilégios
+# 34. reboot ; reinicia o sistema para o novo ambiente
+# 35. archinstall ; inicia assistente de instalação semi-gráfico alternativo   
 
 
 # -- END
