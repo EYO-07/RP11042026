@@ -1,0 +1,9 @@
+\contentsline {section}{\numberline {1}Introdução}{1}{}%
+\contentsline {section}{\numberline {2}Recomendações e Requisitos}{2}{}%
+\contentsline {section}{\numberline {3}Instalação}{3}{}%
+\contentsline {subsection}{\numberline {3.1}Pacstrap - Primeira Etapa}{6}{}%
+\contentsline {subsection}{\numberline {3.2}Arch-Chroot - Segunda Etapa}{8}{}%
+\contentsline {section}{\numberline {4}Configurações Básicas}{12}{}%
+\contentsline {section}{\numberline {5}i3+picom - Ambiente Gráfico}{14}{}%
+\contentsline {section}{\numberline {6}Pipewire+Wireplumber - Servidor de Áudio}{19}{}%
+\contentsline {section}{\numberline {7}Outros}{20}{}%

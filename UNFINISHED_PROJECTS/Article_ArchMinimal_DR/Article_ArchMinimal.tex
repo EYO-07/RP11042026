@@ -1,0 +1,928 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[left=1.8cm, right=1.8cm, top=2.0cm, bottom=2.5cm]{geometry}
+\usepackage{listings}
+
+\lstset{
+    basicstyle=\ttfamily\small,       % Fonte monoespaçada e tamanho
+    breaklines=true,                   % Quebra de linha automática se o código for longo
+    tabsize=4,                         % Tamanho da tabulação
+    % --- Configuração de Acentos e Caracteres Especiais ---
+    literate={á}{{\'a}}1 {é}{{\'e}}1 {ê}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1 {à}{{\`a}}1 {è}{{\`e}}1 {ì}{{\`i}}1 {ò}{{\`o}}1 {ù}{{\`u}}1 {ã}{{\~a}}1 {õ}{{\~o}}1 {ç}{{\c c}}1 {ñ}{{\~n}}1 {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1 {À}{{\`A}}1 {È}{{\`E}}1 {Ì}{{\`I}}1 {Ò}{{\`O}}1 {Ù}{{\`U}}1 {Ã}{{\~A}}1 {Õ}{{\~O}}1 {Ç}{{\c C}}1 {ü}{{\"u}}1 {Ü}{{\"U}}1 {ö}{{\"o}}1 {Ö}{{\"O}}1 {ä}{{\"a}}1 {Ä}{{\"A}}1
+}
+
+\title{
+    \includegraphics[width=0.4\textwidth]{arch_logo.png} \\
+    Instalação Linux Minimalista \\ X11+i3+picom
+}
+\author{ozapr@proton.me}
+\date{\today}
+
+\begin{document}
+
+\makeatletter
+\newcommand{\myabstract}{
+Tutorial de instalação customizada de linux para uso doméstico (\textit{Desktop}) a partir de instalação mínima da distribuição \textbf{Arch}. Neste documento o leitor será instruído à instalação manual de gerenciador de janelas \textbf{i3} (\textit{Window Manager}) e compositor de janelas \textbf{picom} (\textit{Window Compositor}) para servidor o gráfico legado \textbf{X11} (\textit{Graphical Server}). Recursos essenciais também serão abordados, como instação de servidor de audio, interface para adaptadores de rede, gerenciador de arquivos, etc.
+}
+\renewcommand{\maketitle}{
+    \newpage
+    \null
+    \vskip 2em
+    \begin{center}
+        {\LARGE \bfseries \@title \par}
+        \vskip 1.5em
+        {\large 
+        \lineskip .5em
+            \begin{tabular}[t]{c}
+                \ifx\@empty\@author\else\textbf{\@author}\fi\\
+                \ifx\@empty\@date\else\small\textit{\@date}\fi
+            \end{tabular}\par}
+        \vskip 1em
+        \hrule
+        \vskip 1.5em
+        \begin{minipage}{0.95\textwidth}
+            \centering
+            \itshape
+            \hspace{\baselineskip}
+            \myabstract
+        \end{minipage}
+
+        \vskip 2em
+    \end{center}
+}
+\makeatother
+\renewcommand{\today}{\the\year-\the\month}
+\begin{titlepage}
+    \maketitle 
+    \thispagestyle{empty} 
+\end{titlepage}
+
+% ==============================================================================================
+\renewcommand{\contentsname}{Sumário}
+\tableofcontents 
+\section{Introdução} 
+
+\hspace{\baselineskip}
+
+O objetivo deste texto é guiar o leitor durante a instalação da distribuição \textbf{Arch Linux}. Caso o leitor não tenha interesse em uma instalação customizada, já existem várias distribuições disponíveis de fácil acesso, como \texttt{Ubuntu}, \texttt{Mint} e \texttt{Fedora}. \\
+
+A distribuição \textbf{Arch-Linux} não é para amadores, lembre-se de tomar as devidas precauções antes de instalar o sistema, como backups de arquivos importantes, mídias de instalação extra do arch e de outros sistemas e até mesmo sistemas operacionais mais estáveis instalados em outras partições. Não é incomum que em uma instalação ou outra, ou mesmo na primeira instalação o sistema fique preso no terminal de recuperação do \texttt{initramfs}. \\
+
+Este tutorial irá guiar o leitor para uma instalação mínima do arch usando o gerenciador de janelas \textbf{i3}. O i3 é um pouco mais difícil de usar que os ambientes gráficos tradicionais, pois requer o aprendizado de atalhos de teclado para usar de maneira eficiente. Isso não é um problema para as gerações que já estão acostumadas com jogos eletrônicos, porém não é indicado para os demais usuários. Se não estiver disposto a usar o sistema operacional com atalhos de teclado \textbf{este tutorial não foi feito para você}.\\
+
+O \textbf{Arch Linux} não é recomendado para usuários Linux de primeira viagem, Arch-Linux ainda é considerado uma distribuição instável. Como a distribuição atualiza de maneira contínua, é provavel que em uma atualização ou outra o usuário tenha que resolver problemas que um usuário inexperiente terá dificuldades para resolver. \\
+
+\begin{lstlisting}
+* Qual a diferencial do Arch Linux ?
+* Como funciona o instalador do Arch Linux ? 
+* Existem distros em Arch Linux com instaladores gráficos ? 
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+O arch linux tem um perfil minimalista, o usuário permanece no instalador apenas o suficiente para criar um sistema linux funcional mínimo, sendo a configuração e a instalação dos outros componentes feito a partir dela.\\
+
+Existem distros baseados em Arch Linux com instaladores gráficos, como \texttt{Endeavouros} ou \texttt{CauchyOS}. Tais versões podem ser interessantes para uma primeira experiência em Arch, apesar de pessoalmente considerar que tais distros não preservam a essência e filosofia do Arch e do próprio Linux. A sensação de construir pode ser vista como uma finalidade em si, se o usuário for adepto da filosofia \textbf{DIY} (Do it yourself, Faça você mesmo) o Arch-Linux é o sistema operacional ideal. \\
+
+%A filosofia do \textbf{Arch Linux} é controle, apesar de ser considerado difícil de instalar, ele não é tão difícil para usuários experiêntes do ambiente linux. A abordagem de instalação do Arch Linux é mais trabalhosa, porém tem suas vantagens. O sistema terá melhor desempenho, por conta do menor uso de recursos de hardware por processos em segundo plano desnecessários e o usuário irá ganhar mais experiência sobre o funcionamento do sistema linux. Embora convincentes, nenhum destes argumentos serão mais efetivos do que a essência da filosofia \textbf{DIY} (\textit{do it yourself}, faça você mesmo), a sensação de construir é uma finalidade em si. \\
+
+Neste tutorial será mostrado o passo-a-passo para a instalação do kernel da distribuição \textbf{Arch}, desde os procedimentos iniciais de instalação até a configuração do servidor gráfico legado \textbf{X11}, o gerenciador de janelas em \texttt{tiles} (blocos) \textbf{i3} e o compositor \textbf{picom}.
+
+% ==============================================================================================
+\section{Recomendações e Requisitos}
+
+\hspace{\baselineskip}
+
+A primeira recomendação é não usar o arch-linux como único sistema instalado, especialmente se esta for a primeira experiência com o arch-linux. Tenha outros sistemas operacionais instalados e evite instalar o grub pelo arch-linux. O espaço necessário para o arch-linux com i3 é pequeno, não mais que 50 \texttt{GB}. \\
+
+\begin{lstlisting}
+* Espaço livre necessário para ...
+** funcionamento seguro do sistema operacional windows ?
+** funcionamento de sistemas operacionais linux ? 
+** sistemas operacionais mínimos como arch-linux ? 
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+É interessante para instalação do arch linux uma fonte de consulta (por exemplo, este tutorial), pois a instalação é feita com base em comandos de terminal. Lembre-se de que a instalação de um sistema operacional é uma operação crítica, pois pode envolver perda de dados e incompatibilidades. Não prossiga para instalação do sistema operacional se houver dúvidas. Faça backups de arquivos importantes. Tenha uma mídia para instalação do sistema operacional original. Se possível, instale o sistema linux em outro disco rígido (SSD/HD) secundário, caso contrário tenha bastante espaço em disco para poder criar novas partições. \\
+
+Se você estiver migrando do windows é necessário verificar o status do \textbf{bitlocker}, do \texttt{Secure Boot} (TPM) e da inicialização rápida. Caso o sistema bitlocker de criptografia esteja ativado no seu dispositivo, obtenha e anote em um papel ou caderno a chave bitlocker do seu dispositivo via sua conta microsoft, isso é muito importante, sem a chave bitlocker não será possível sair do modo de recuperação do bitlocker e você irá perder os dados gravados no dispositivo. \\
+
+Se o bitlocker estiver ativado, opte sempre por suspender temporariamente o bitlocker. Desativar o bitlocker irá descriptografar os dispositivos, essa operação consome tempo e pode levar a perda de dados em caso de falta de energia. Mudanças nas configurações da UEFI/BIOS podem acionar o sistema de segurança, por isso tenha em mãos a chave de recuperação. \\
+
+A conexão via cabo de rede ethernet é a mais confiável, problemas com wifi, especialmente de hardwares antigos como a broadcom, são bem comuns e estão bem documentados. Este tutorial irá oferecer um caminho para instalação, mesmo com hardwares wifi antigos, porém não há garantia que funcione em qualquer hardware e problemas específicos devem ser consultados na wiki oficial (\texttt{https://wiki.archlinux.org/title/Main\_page}).\\
+
+Você irá precisar de uma mídia de instalação, recomendo uma mídia \texttt{usb} com a ferramenta ventoy instalada (\texttt{github.com/ventoy/Ventoy}), pois com ela não é necessário reformatação para utilizar diferentes imagens de instalação (\texttt{.iso}), basta copiar os arquivos (\texttt{.iso}). \\
+
+Também recomendo a pré-formatação usando o \textbf{gparted live} (\texttt{gparted.org}, que também pode ser colocada em uma mídia com ventoy instalado). As etapas de formatação são arriscadas na interface de terminal do arch.\\
+
+As perguntas do texto não são exercícios para serem respondidos formalmente, nem são perguntas que necessariamente serão respondidas aqui. São perguntas para verificação rápida dos conceitos. Não execute operações descritas neste texto enquanto houver conceitos obscuros. Se possível, considere primeiro testar a instalação e o sistema em uma máquina virtual.\\
+
+% ==============================================================================================
+\section{Instalação} 
+
+\begin{lstlisting}
+* gparted ...
+** O que é a ferramenta gparted ?
+** O que é a ferramenta gparted-live ?
+*** Como inicializar o gparted usando live-usb ?
+*** Como fazer inicialização normal do gparted-live ?
+*** Como fazer inicialização segura no gparted-live ?
+**** Quando é interessante usar inicialização segura ? 
+** Como usar o gparted ?
+*** Quais os formatos comuns de sistema de arquivos para Linux ?
+*** Como analisar os espaços disponíveis ?
+**** Como identificar espaços não-alocados ?
+**** Como identificar partições primárias ?
+**** Como identificar partições estendidas ?
+**** Como identificar partições lógicas ? 
+*** Como funciona a execução de operações no gparted ? 
+*** Quais operações podem ser feitas no gparted ?
+**** Como estender uma partição com um espaço não-alocado ?
+**** Como criar espaços não-alocados de uma partição com espaço vazio ?
+**** Como criar um rótulo para uma partição (nomear) ? 
+*** Quais operações são mais arriscadas ?
+**** O que é criar uma tabela de partição ?
+***** Quais as diferenças entre a tabela de partição GPT e MBR ? 
+**** Por que não é recomendável mover partições de posição ? 
+**** Por que é recomendável formatação rápida em relação a formatação normal ? 
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Prepare as partições a serem usadas na instalação do arch-linux usando o gparted-live ou usando o gparted em algum outro sistema linux instalado, inclusive pode ser interessante nomear as partições com rótulos apropriados, estes rótulos aparecem quando se usa o comando \texttt{blkid} e irão facilitar a identificação das partições a serem utilizadas.\\
+
+Se a sua partição estiver no formato \texttt{GPT} você irá precisar de uma partição \texttt{ESP} para armazenar os arquivos de inicialização do sistema, você pode utilizar uma partição \texttt{ESP} existente caso já tenha (tome cuidado para não formatá-la acidentalmente), caso não exista você deve criar uma partição com pelo menos 512 \texttt{MB} (recomendável 1 \texttt{GB}) em \texttt{FAT32}.\\
+
+É interessante ter uma partição \texttt{swap} caso queira usar o modo de hibernação. Você pode reaproveitar swaps existentes, porém atente-se ao risco de hibernar um sistema operacional e carregar em outro, caso esteja em uma configuração multi-boot isso pode levar à falhas de inicialização.\\
+
+É suficiente 50-70 \texttt{GB} em \texttt{ext4} para a partição principal do sistema (partição root /). Um sistema arch mínimo com i3 como gerenciador de janelas ocupa pouco espaço, porém outros ambientes desktop podem ser mais pesados, se este for o sistema principal você pode alocar mais espaço como 100 \texttt{GB}, o que pode permitir a instalação de outros ambientes desktops secundários. \\
+
+Baixe a \texttt{.iso} do site oficial do arch-linux (\texttt{https://archlinux.org/download/}) e prepare a mídia de instalação. Se estiver usando o windows, tome as devidas precauções com o bitlocker (tenha a chave de recuperação). \\
+
+Em caso de dúvidas que não forem respondidas neste texto, também recomendo consultar diretamente as instruções oficiais de instalação no site:
+
+$$ \texttt{https://wiki.archlinux.org/title/Installation\_guide} $$
+
+\begin{lstlisting}
+* Como é a interface de instalação do Arch Linux ?
+* Como conectar a rede wifi durante a instalação ?
+** Como iniciar a interface de instalação com blacklist de drivers ?
+** Como usar o iwctl ?
+* Como configurar o teclado durante a instalação ?
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Diferente de outras distribuições em que o usuário interage com um instalador em um processo linear de instalação, a interface de instalação do arch-linux é um terminal. Para usuários do ambiente linux experientes a instalação é muito mais confortável desta maneira, sendo o processo de instalação feito através de comandos. \\ 
+
+Se o usuário compreender o processo, a instalação via terminal se tornará extremamente flexível. A instalação do seu sistema arch-linux pode ser feita praticamente de maneira não-linear, você pode parar e recomeçar a instalação a qualquer momento. Porém existem etapas que necessariamente precisam ser feitas em ordem.\\
+
+\begin{lstlisting}
+1. Preparação das Partições (gparted)
+2. Instalação do Sistema Base (pacstrap)
+3. Configurações Básicas (arch-chroot)
+4. Instalação Personalizada (arch-mínimo)
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Caso você esteja com conexão via cabo ethernet você provavelmente não terá problemas, porém na instalação por wifi, se o hardware for incompatível com o driver você não conseguirá prosseguir com a instalação, pois o arch linux depende de conexão com a internet. \\
+
+A estratégia para prosseguir com a instalação usando hardware wifi incompatível é bloquear a inicialização dos drivers incompatíveis antes do boot do sistema de instalação. Os drivers que geralmente dão problema são (b43,ssb,bcma,brcmsmac,b43legacy,brcmfmac), porém você deve pesquisar primeiro qual combinação pode resolver o problema para o seu adaptador específico. Vamos supor que baste bloquear o b43, quando estiver no menu de inicialização da imagem de instalação, selecione o boot do arch linux e pressione \texttt{e} ou \texttt{Tab} para editar as variáveis de inicialização.\\
+
+\begin{lstlisting}
+# no menu de boot do instalador:
+# ... pressione e ou tab para editar as variáveis de inicialização 
+# ... coloque no final a variável abaixo
+# ... com os nomes dos drivers a serem bloqueados.
+modprobe.blacklist=b43,ssb 
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Para se conectar a uma rede wifi no terminal de instalação do arch-linux, você deve executar \texttt{iwctl}. Esse comando irá abrir um subterminal que você pode executar os seguintes comandos: \\
+
+\begin{lstlisting}
+# Inventário : comandos do iwctl { Arch Linux }
+# 1. device list ; mostra o nome das interfaces wifi disponíveis 
+# 2. station NOME_INTERFACE scan ; ativa a detecção de rede da interface
+# 3. station NOME_INTERFACE get-networks ; mostra lista das conexões disponíveis
+# 4. station NOME_INTERFACE connect NOME_DA_REDE ; conecta a rede 
+# 5. exit ; sai do subterminal iwctl
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Primeiro entre no ambiente do \texttt{iwctl} usando o comando \texttt{iwctl}. Use o comando \texttt{device list} para mostrar o nome das interfaces disponíveis, vamos supor que a interface wifi seja \texttt{wlan0}, ative a deteção de rede usando \texttt{station wlan0 scan}, mostre a lista de conexões disponíveis usando \texttt{station wlan0 get-networks}. Com o nome das conexões você pode conectar a interface wifi com a rede através do comando \texttt{station wlan0 connect REDE}, irá aparecer um prompt pedindo a chave de segurança da rede, caso seja uma rede wifi fechada. Para sair do ambiente \texttt{iwctl} basta executar o comando \texttt{exit}. \\
+
+Teste a conexão com o comando \texttt{ping archlinux.org} ou \texttt{ping 8.8.8.8}. Ele vai mostrar o intervalo de envio e recebimento de pacotes (pressione \texttt{ctrl+c} para sair). Ter um ping menor que 20 \texttt{milisegundos} é o ideal, pings mais altos podem fazer o instalador falhar. Caso você veja mensagens de erro do instalador, não se preocupe, basta executar o comando de instalação novamente, pois o instalador irá retornar ao ponto que parou dos downloads. \\
+
+Preste bem atenção às mensagens de erro, pois o instalador pode retomar a instalação, mas não irá fazer nenhum milagre, se o download falhar a instalação não irá acontecer e você irá montar um sistema incompleto. Para componentes básicos isso pode obviamente impedir sua inicialização. \\
+
+Agora que você está conectado a internet, você deve checar o layout do teclado, teste os símbolos especiais como as barras inclinadas (slash, backslash), os símbolos de pontuação, os símbolos de parênteses, caso não retorne nada ou retorne de maneira incorreta, significa que você precisará ajustar o layout. Você precisa executar o comando \texttt{loadkeys LAYOUT}, geralmente \texttt{loadkeys br-abnt} funciona para a maior parte dos teclados do brasil, porém se não funcionar use o comando \texttt{localectl list-keymaps} para verificar as opções de layout disponíveis para os teclados brasileiros.\\
+
+\begin{lstlisting}
+# Inventário : teclado, rede e horário { Arch Linux }
+# 1. localectl list-keymaps ; lista os nomes dos layouts de teclado
+# 2. loadkeys br-abnt ; configura layout do teclado para português brasileiro
+# 3. ping archlinux.org ; testa a conexão com a internet
+# 4. iwctl ; inicia utilitário de configuração de rede sem fio
+# 5. timedatectl set-ntp true ; ajusta o relógio automaticamente 
+\end{lstlisting}
+
+\subsection{Pacstrap - Primeira Etapa}
+
+\hspace{\baselineskip}
+
+A partir daqui será assumido que as partições já estão pré-formatadas e prontas para instalação. Não se esqueça de ajustar o relógio, isso pode prejudicar o download de pacotes. A instalação mínima do sistema pode ser dividido em três etapas, a primeira etapa é a instalação inicial, usando o kernel e os programas da mídia de instalação, a segunda etapa é a etapa do chroot, que apesar de feita no terminal de instalação, usa o kernel e componentes do sistema base instalado através do comando \texttt{arch-chroot}, e a terceira etapa é a instalação já dentro do sistema operacional do arch-linux recém instalado. \\
+
+\begin{lstlisting}
+# Inventário : instalação mínima { Arch Linux }
+# -- (1) kernel da mídia de instalação --
+# 1. ls /sys/firmware/efi/efivars ; verifica se o boot está em modo UEFI
+# 2. blkid ; lista discos e partições disponíveis no sistema
+# 3. fdisk -l ; lista discos e partições disponíveis no sistema
+# 4. mkswap /dev/sdXY ; inicializa partição de swap
+# 5. swapon /dev/sdXY ; ativa a partição de swap
+# 6. mount /dev/sdXY /mnt ; monta partição raiz (/) em /mnt
+# 7. mount --mkdir /dev/sdXY /mnt/boot ; monta partição de boot
+# 8. mount --mkdir /dev/sdXY /mnt/boot/efi ; monta partição ESP
+# 9. pacstrap /mnt base linux linux-firmware ... ; instala sistema base
+# 10. genfstab -U /mnt >> /mnt/etc/fstab ; gera arquivo de tabela de sistemas de arquivos
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Tenha muita atenção nesta primeira etapa, se você errar as partições, você pode acabar perdendo dados e apagando sistemas existentes. Execute o comando \texttt{blkid} para verificar os nomes das unidades de disco. Deve aparecer uma lista com os nomes seguidos de informações de identificação, como rótulo, tipo de formatação, números de identificação UUID. Os nomes que aparecem podem mudar, sendo mais confiável utilizar os UUIDs para montagem quando o sistema estiver completo. Porém, no terminal do arch-linux isso é muito pouco prático e propenso a erros. Use o nome das partições consultando sempre que necessário o comando \texttt{blkid}.\\
+
+Verifique o tipo de tabela de partição usando o comando \texttt{ls /sys/firmware/efi/efivars}, se não retornar nada ou retornar erro significa que você está em um disco \texttt{MBR}, caso retorne algo, então você está em um disco com tabela de partição \texttt{GPT}.\\
+
+Suponha que a tabela de partição do disco seja \texttt{MBR} e você tenha duas partições, a partição swap em \texttt{/dev/sda2} com 8 \texttt{GB} e a partição \texttt{/dev/sda3} com 50 \texttt{GB} em \texttt{ext4} que será usado para o root. Para a instalação começar você precisa montar a partição root e ativar o swap. Execute o comando \texttt{mount /dev/sda3 /mnt} para montar a partição root, caso o swap nunca tenha sido utilizado execute \texttt{mkswap /dev/sda2}, caso seja um swap compartilhado já existente você pode executar imediatamente a ativação com \texttt{swapon /dev/sda2}. \\
+
+Verifique se as partições foram montadas corretamente com o comando \texttt{lsblk}. As unidades \texttt{sda2} e \texttt{sda3} devem estar com os pontos de montagem \texttt{swap} e \texttt{/mnt} respectivamente. Se as montagens estiverem incorretas você terá que desmontar as respectivas partições usando os comandos \texttt{umount -R /mnt} para partição root e \texttt{swapoff} para o swap. \\
+
+Se você estiver em um disco com tabela de partição \texttt{GPT} você irá precisar montar a partição \texttt{ESP} além das partições anteriores, supondo que você tenha criado ou esteja utilizando uma partição \texttt{ESP} existente em \texttt{/dev/sda1}, basta usar o comando \texttt{mount --mkdir /dev/sda1 /mnt/boot/efi}. Lembre-se de montar a partição root primeiro que a partição \texttt{ESP}, a inversão desta ordem pode acabar populando os endereços dos arquivos de maneira incorreta. \\
+
+Verifique se as partições foram montadas corretamente com o comando \texttt{lsblk}. Você terá que verificar agora a montagem do \texttt{ESP} da unidade \texttt{/dev/sda1} em \texttt{/mnt/boot/efi}. \\
+
+Com as partições montadas você pode prosseguir para a instalação do sistema base usando o comando \texttt{pacstrap}. O pacstrap em tese pode instalar qualquer pacote de instalação dos repositórios oficiais, porém o recomendado é instalar somente os pacotes essenciais para criar um linux bootável mínimo, isso vai permitir resolver os problemas mais críticos do sistema primeiro. \\
+
+\begin{lstlisting}
+# instalação do sistema base e firmwares 
+pacstrap /mnt base linux linux-firmware
+# firmwares para processadores intel
+pacstrap /mnt intel-ucode 
+# firmwares para processadores amd
+pacstrap /mnt amd-ucode
+# programas essenciais 
+# 1. sudo : programa de elevação de privilégio sudo 
+# 2. nano : editor de texto para terminal 
+# 3. networkmanager : ferramenta de configuração de rede 
+# 4. grub : utilitários do grub para inicialização do sistema
+pacstrap /mnt sudo nano networkmanager grub
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Use os comandos acima para instalar o sistema base usando \texttt{pacstrap}, você pode instalar ambos os pacotes \texttt{intel-ucode} e \texttt{amd-ucode}, porém é interessante escolher o correspondente ao seu processador. O editor de código e texto \texttt{nano} é mais amigável e será bastante útil para configurar os arquivos iniciais do sistema, porém você pode substituir por outros como o \texttt{vim} ou \texttt{vi}.\\
+
+Verifique se não houve mensagens de erro, você pode executar os comandos novamente em caso de perda de conexão, o pacstrap consegue retornar de maneira inteligente o download dos pacotes. Nessa primeira etapa não será feito a instalação dos firmwares de placas de vídeo como o nvidia, portanto o sinal de vídeo provavelmente estará no monitor da placa-mãe. \\
+
+Para finalizar a primeira etapa de instalação agora execute o comando:
+
+$$ \texttt{genfstab -U /mnt $>>$ /mnt/etc/fstab} $$
+
+\vspace{\baselineskip}
+
+Esse comando gera a montagem automática das unidades montadas na instalação, sem esse comando o sistema não vai montar as partições onde foi instalado o sistema, nem a partição swap e a partição ESP. O argumento \texttt{-U} é muito importante, pois ele vai referenciar as unidades pelo UUID. Erros no fstab impedem a inicialização correta do sistema, por isso é sempre interessante usar ferramentas auxiliares como o \texttt{genfstab}, mas nada impede do usuário editar manualmente o arquivo \texttt{/mnt/etc/fstab}. Use o comando \texttt{cat /mnt/etc/fstab} para verificar o resultado. \\
+
+\begin{lstlisting}
+# Inventário : instalação mínima { Arch Linux }
+# -- (2) kernel do novo sistema usando chroot --
+# 1. arch-chroot /mnt ; alterna raiz para o novo sistema instalado
+# 2. ln -sf /usr/share/zoneinfo/Região/Cidade /etc/localtime ; define fuso horário
+# 3. hwclock --systohc ; sincroniza relógio de hardware com o sistema
+# 4. nano /etc/locale.gen ; edita arquivo para descomentar idioma desejado
+# 5. locale-gen ; gera as localizações configuradas
+# 6. echo "LANG=pt_BR.UTF-8" > /etc/locale.conf ; define idioma padrão do sistema
+# 7. echo "NOME_DO_HOST" > /etc/hostname ; define nome da máquina
+# 8. pacman -S networkmanager ; instala gerenciador de rede
+# 9. systemctl enable NetworkManager ; habilita serviço de rede na inicialização
+# 10. mkinitcpio -P ; regenera imagem de inicialização
+# 11. passwd ; define senha para o usuário root
+# 12. pacman -S grub efibootmgr ; instala bootloader GRUB e ferramentas UEFI
+# 13. grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB ; instala GRUB
+# 14. grub-mkconfig -o /boot/grub/grub.cfg ; gera arquivo de configuração do GRUB
+# 15. useradd -m -G wheel NOME_USUARIO ; cria novo usuário e adiciona ao grupo wheel
+# 16. passwd NOME_USUARIO ; define senha para o novo usuário
+# 17. EDITOR=nano visudo ; edita arquivo sudoers para conceder privilégios
+# 18. reboot ; reinicia o sistema para o novo ambiente
+\end{lstlisting}
+
+\subsection{Arch-Chroot - Segunda Etapa}
+
+\hspace{\baselineskip}
+
+A segunda parte da instalação do sistema arch-linux via terminal é feita usando a ferramenta \texttt{arch-chroot}. Nessa etapa, em vez de usarmos as ferramentas e o kernel da mídia de instalação, iremos usar as ferramentas e os recursos instalados no sistema recém-criado. O comando \texttt{arch-chroot /mnt} configura o terminal como se estivesse dentro do sistema construído, assim os endereços e os comandos ficam relativos ao sistema, não sendo mais necessário referenciar o ponto de montagem do sistema \texttt{/mnt}. Por exemplo, se quisermos saber o conteúdo do \texttt{fstab}, basta digitar \texttt{cat /etc/fstab} em vez de \texttt{cat /mnt/etc/fstab}. \\
+
+Nesta etapa as configurações de teclado, localização, horário, senha do usuário root e usuários iniciais são criados. Sem estas configurações o sistema não é inicializável, portanto o \texttt{arch-chroot} é necessário para fazer estas edições. \\
+
+Para configurar o idioma primeiro você precisa criar e editar o arquivo \texttt{/etc/locale.gen} com os pacotes de idiomas indicados como abaixo: \\
+
+\begin{lstlisting}
+# exemplo /etc/locale.gen
+pt_BR.UTF-8 UTF-8
+en_US.UTF-8 UTF-8
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Use o editor \textbf{nano}, usando o comando \texttt{nano /etc/locale.gen} e use \texttt{ctrl+o} para salvar e \texttt{ctrl+x} para sair do editor. Criado o arquivo agora basta usar o comando \texttt{locale-gen} para que o sistema instale e configure os idiomas selecionados baseado no que estiver indicado do arquivo.\\
+
+Para selecionar o idioma padrão, você deve configurar a variável \texttt{LANG} no arquivo \texttt{/etc/locale.conf}, crie e edite o arquivo adicionando a linha \texttt{LANG=en\_US.UTF-8} para língua padrão em inglês ou outra linguagem de preferência, como o português \texttt{LANG=pt\_BR.UTF-8}. No arquivo \texttt{locale.conf} também pode ser configurado o padrão do relógio com \texttt{LC\_TIME=...} caso tenha preferência. \\
+
+Para configurar o relógio e horário do sistema você deve usar os comandos abaixo:
+
+\begin{lstlisting}
+# 1. Configura o horário pela rede
+timedatectl set-ntp true
+# 2. Configura o relógio para Brasil região Leste
+# ... aperte tab duas vezes com o input 
+# ... 'ln -sf /usr/share/zoneinfo/Brazil/'
+# ... para aparecer as outras opções.
+ln -sf /usr/share/zoneinfo/Brazil/East /etc/localtime 
+# 3. Registra o horário no relógio do hardware 
+hwclock --systohc 
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Para configurar o teclado basta editar o arquivo \texttt{/etc/vconsole.conf} que irá editar as configurações do console. Adicione a linha \texttt{KEYMAP=br-abnt} ou \texttt{KEYMAP=...} para a opção que funcione para o layout do seu teclado. \\
+
+Feito isso, execute o comando \texttt{echo "PC\_NAME" > /etc/hostname} com \texttt{PC\_NAME} o nome do computador. Não crie nomes crípticos, não deve ser uma senha, mas um nome humanamente legível para identificar o computador na sua rede. Crie agora o arquivo \texttt{/etc/hosts} conforme abaixo: \\
+
+\begin{lstlisting}
+# /etc/hosts
+# vamos supor que o hostname seja archmin
+127.0.0.1   localhost
+::1         localhost
+127.0.1.1   archmin.localdomain archmin
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Execute os seguintes comandos para criar usuários:\\
+
+\begin{lstlisting}
+# 1. Mude a senha do usuário root com:
+passwd 
+# 2. Adicione o usuário NOME ao grupo wheel 
+# ... o grupo wheel são usuários que 
+# ... podem executar comandos root com sudo
+useradd -m -G wheel NOME
+passwd NOME 
+# 3. Habilite o grupo wheel 
+# ... execute o comando abaixo e descomente 
+# ... a linha %wheel ALL=(ALL) ALL
+EDITOR=nano visudo 
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+O grupo wheel era o grupo tradicional de usuários com privilégios de administrador, quem estiver migrando de sistemas \textbf{Debian} pode estranhar o uso do grupo wheel, pois o \textbf{Debian} adotou o grupo \texttt{sudo}, porém no \textbf{Arch} e nos sistemas tradicionas o grupo \textbf{wheel} tem essa funcionalidade.\\
+
+Para finalizar a segunda etapa de instalação (a última etapa da instalação mínima) é necessário executar comandos para tornar o sistema bootável (inicializável), vamos usar o sistema \texttt{grub}, pois a maior parte das outras distribuições utilizam esse sistema. \\
+
+\begin{lstlisting}
+# Inventário : Instalação Grub { Arch-Linux }
+# 1. grub-mkconfig -o /boot/grub/grub.cfg ; cria o arquivo de inicialização
+# 2. grub-install --target=i386-pc /dev/sdX ; instala e registra o grub na partição MBR 
+# 3. pacman -S grub efibootmgr ; instala os pacotes grub e efibootmgr
+# 4. grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB   
+# ... instala o grub para partições UEFI/GPT 
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+A execução do comando \texttt{grub-mkconfig -o /boot/grub/grub.cfg} é estritamente necessária, caso contrário o sistema não irá inicializar. A instalação do grub por outro lado não é necessária caso o seu sistema seja secundário. Em uma disposição multi-boot, em que temos vários sistemas operacionais linux, recomendo que o arch-linux seja o sistema secundário, pois o arch-linux é mais instável, assim não reinstale o grub, execute \texttt{update-grub} no terminal do sistema operacional principal para ele detectar o \texttt{arch-linux} automaticamente. \\
+
+Caso você queira o arch-linux como sistema principal, você pode executar os comandos \texttt{grub-install} respectivos para partições GPT ou MBR. Caso você esteja usando a partição GPT, execute o comando para instalar o pacote \texttt{efibootmgr}, do contrário a instalação irá falhar. \\
+
+Em caso de querer tornar o arch-linux o sistema principal (o que não recomendo), você irá precisar instalar o pacote \texttt{os-probe} para detectar outros sistemas operacionais, caso você esteja em tabela de partição GTP você terá que instalar também o pacote texttt{efibootmgr}. Você pode incluir o pacotes no comando do pacstrap (fora do ambiente arch-chroot) ou no comando \texttt{pacman -S os-probe efibootmgr} dentro do ambiente arch-chroot. Porém você deverá habilitar o \texttt{os-probe} editando o arquivo \texttt{/etc/default/grub} e descomentando a linha específica com a variável \texttt{GRUB\_DISABLE\_OS\_PROBER=false} para que a detecção dos sistemas aconteça. Não esqueça de verificar o resultado com o comando \texttt{cat /boot/grub/grub.cfg} para checar se houve detecção dos outros sistemas. \\
+
+\begin{lstlisting}
+# Finalização da Segunda Etapa
+mkinitcpio -P # atualiza o initramfs 
+exit # sai do arch-chroot 
+umount -R /mnt # desmonta recursivamente
+reboot 
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Não se esqueça de executar o \texttt{mkinitcpio -P} antes de sair do ambiente arch-chroot, este comando é necessário para aplicar as instalações que precisam carregar módulos essenciais no initframs, sem esse comando o sistema pode não funcionar corretamente. Sai do ambiente arch-chroot usando \texttt{exit}, desmonte recursivamente as partições usando \texttt{umount -R /mnt} e reinicie para finalizar a segunda etapa da instalação.\\
+
+Se você obtiver êxito nesta segunda etapa, você terá a instalação mínima do arch-linux, as etapas posteriores são considerados customização do sistema, onde você pode decidir sobre os componentes gráficos, os serviços de áudio e os programas do seu ambiente linux.\\
+
+Se você seguiu a recomendação de não instalar o grub pelo arch-linux, então o seu sistema não estará registrado como opção. Para que a opção do arch-linux apareça é necessário inicializar o seu sistema linux principal e executar o comando para atualizar o \texttt{/boot/grub/grub.cfg}. Em sistemas \texttt{Debian} basta executar o comando \texttt{update-grub}, este comando irá executar o \texttt{os-probe} e regenerar o arquivo de inicialização incluindo todos os sistemas detectados. Caso o seu sistema seja similar ao arch-linux, você terá que fazer as operações de detecção de sistemas e regeneração apropriadas.\\
+
+Ao reiniciar o seu recém-instalado sistema, você irá entrar no terminal virtual do kernel linux (tty), os terminais virtuais podem ser acessados usando os atalhos de teclado \texttt{ctrl+alt+F1}, \texttt{ctrl+alt+F2} ... \texttt{ctrl+alt+FX}. Cada um dos atalhos é um terminal diferente, você pode utilizar estes atalhos para fazer operações distintas no sistema. É importante saber destes atalhos, pois em caso de falha de um ambiente desktop instalado você pode voltar para a interface inicial tty, permitindo você solucionar os possíveis problemas. Como recomendação, enquanto você estiver fazendo modificações no seu sistema, sempre inicie o sistema operacional pelo terminal tty, pois ele vai permitir você resolver eventuais problemas do seu ambiente gráfico que irão surgir nesta etapa inicial, além disso você terá liberdade de modificar arquivos que podem estar bloqueados no ambiente gráfico (por exemplo, a atualização do cache de fonte). \\
+
+Se você instalou usando hardware wifi incompatível usando \textbf{blacklists} de drivers, você terá que criar um arquivo na pasta \texttt{/etc/modprobe.d/} do seu sistema com os drivers que você bloqueadou durante a instalação. O instalador não configura isso automaticamente: \\
+
+\begin{lstlisting}
+# 1. Entre com seu usuário wheel 
+# 2. Abra o nano como administrador
+# ... o arquivo deve terminar em .conf 
+# ... pode ter qualquer nome 
+sudo nano /etc/modprobe.d/my-blacklist.conf 
+
+    # /etc/modprobe.d/my-blacklist.conf 
+    blacklist NOME_DO_DRIVER_1
+    blacklist NOME_DO_DRIVER_2
+
+# 3. Salve o arquivo e saia do nano 
+# 4. Regenere o initframs 
+mkinitcpio -P 
+# 5. Reinicie o seu sistema
+sudo reboot
+\end{lstlisting}
+
+% ==============================================================================================
+\section{Configurações Básicas}
+
+\hspace{\baselineskip}
+
+O arch-linux segue a filosofia \textbf{kiss} (Keep it Simple, Stupid), seus programas não vão executar tarefas de maneira automática, o sistema não irá assumir que certas configurações sejam adequadas por conta de sua popularidade, você terá que instruir explicitamente e configurar explicitamente o que você quer. Essa filosofia é interessante para manter o sistema mínimo e personalizado. Portanto ao instalar o pacote do \texttt{NetworkManager}, o serviço provavelmente estará inativo, execute o comando \texttt{sudo systemctl enable NetworkManager} para ativar o serviço, este comando registra o serviço do \textbf{NetworkManager} para sempre ser executado ao reiniciar o sistema, portanto somente é necessário executá-lo uma vez. \\
+
+\begin{lstlisting}
+# Inventário : wifi { NetworkManager, Linux }
+# 1. nmcli device status ; mostra o status das interfaces de rede 
+# 2. nmcli radio wifi on ; ativa a detecção wifi 
+# 3. nmcli device wifi list ; lista as redes wifis encontradas 
+# 4. nmcli device wifi connect SSID password PASSWORD ; conecta a rede wifi com senha 
+# 5. nmcli connection show ; mostra o nome das conexões 
+# 6. nmcli connection delete NOME_DA_CONEXAO ; deleta o registro de uma conexão
+# 7. nmcli connection add type ethernet con-name shared-lan ifname NOME_DA_INTERFACE ipv4.method shared ; compartilha conexão via cabo de rede com 'shared-lan' o nome da conexão 
+# 8. nmcli connection up shared-lan ; ativa a conexão compartilhada acima.
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Com o serviço de rede funcional e o sistema conectado a internet, é interessante o usuário fazer o upgrade do sistema antes de começar qualquer instalação. O repositório oficial e o sistema do arch-linux fazem uso de update contínuo (rolling release), diferente de outros sistemas que esperam por grandes atualizações, as atualizações são entregues de imediato, conforme os desenvolvedores disponibilizem nos repositórios. Essa abordagem tem vantagens e desvantagens, a vantagem é que você sempre tem a versão mais atualizada dos recursos, a desvantagem é que isso torna o sistema instável, uma atualização quebrada pode afetar os programas que dependem dele, outro risco é de que o usuário instale um programa com dependências compartilhadas com versõe mais recentes, isso irá atualizar tais dependências, podendo afetar os programas que dependiam das versões anteriores. Execute o comando abaixo para fazer o upgrade do sistema:
+
+$$ \texttt{sudo pacman -Syu} $$
+
+\begin{lstlisting}
+# Inventário : pacman { Arch-Linux }
+# 1. sudo pacman -Syu ; upgrade de todos os pacotes
+# 2. sudo pacman -Syu PACOTE1 PACOTE2 ... ; upgrade e instalação de pacote
+# 3. sudo pacman -S PACOTE ; instalação de um pacote 
+# 4. sudo pacman -R PACOTE ; remove um pacote 
+# 5. sudo pacman -Qet ; lista os pacotes marcados como instalação manual, tome cuidado, nem todo pacote marcado como instalado manualmente foi instalado pelo usuário.
+# 6. sudo pacman -Ss PACOTE ; procura um pacote no repositório oficial do arch 
+# 7. sudo pacman -Qm ; lista os pacotes não oficiais 
+# 8. sudo pacman -Si PACOTE ; mostra informações sobre o pacote 
+# 9. sudo pacman -Qi PACOTE ; mostra informações de pacote instalado
+# 10. sudo pacman -Qdt ; lista pacotes órfãos 
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Os comandos linux foram padronizados em um contexto de pouca memória de trabalho e armazenamento, por isso a maior parte dos comandos são sintéticos e acrônimos. Comandos deste tipo são mais difíceis de memorizar, por isso é interessante para o usuário linux aprender a configurar o terminal para aceitar comandos customizados, os chamados \textbf{aliases}, nestes comandos recomendo não seguir o padrão sintético, mas um padrão verboso, fazendo uso da funcionalidade de auto-completar do terminal (acionado ao pressionar \texttt{tab} uma ou duas vezes).\\
+
+Se você seguiu as instruções e criou seu usuário \texttt{wheel} com o argumento \texttt{-m}, então ao executar o comando para listar os arquivos ocultos \texttt{ls -la} do diretório \texttt{home} você vai encontrar três arquivos de configuração: \\
+
+\begin{lstlisting}
+1. .bash_profile 
+2. .bashrc
+3. .bash_logout
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+O arquivo \texttt{.bash\_profile} é o arquivo principal, as instruções deste arquivo são utilizados pelos terminais e emuladores de terminais, geralmente este arquivo executa o conteúdo dos outros dois. Você pode editar diretamente o \texttt{.bashrc}, ou adicioná-los em um outro arquivo, assim como se faz nos sistemas \textbf{Debian}. Caso opte por criar um arquivo de aliases, digamos \texttt{.bash\_aliases}, você precisa editar o \texttt{.bashrc} adicionando no final do arquivo:\\
+
+\begin{lstlisting}
+if [ -f ~/.bash_aliases ]; then 
+	. ~/.bash_aliases
+fi
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Algumas sugestões de aliases que irão ajudar nesta etapa inicial: \\
+
+\begin{lstlisting}
+# .bash_aliases 
+# ... sugestões 
+alias errors='sudo dmesg | grep -iE "error|critical|failed|failure" | tee ~/errors.txt'
+alias devices='lspci -k | tee ~/devices.txt'
+alias storage_devices='(sudo blkid && sudo fdisk -l) | tee ~/storage_devices.txt'
+alias mount_points='sudo blkid && sudo lsblk -l'
+alias regenerate_initramfs='sudo mkinitcpio -P'
+alias regenerate_font_cache='fc-cache -f -v'
+\end{lstlisting}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% ==============================================================================================
+\section{i3+picom - Ambiente Gráfico}
+
+\begin{lstlisting}
+* Quais as opções de servidor gráfico ?
+* Como instalar e usar o servidor gráfico X11 ?
+** Como inicializar o servidor gráfico, rodar programas e sair do servidor xorg ?
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Servidores gráficos em linux são programas fundamentais que permitem com que aplicativos renderizem sua interface sob forma de janelas, botões, ícones e controles e gerencia os sinais de entrada do teclado e do mouse. Em linux temos dois principais servidores gráficos, o servidor legado \textbf{XOrg}, compatível com a maior parte dos hardware, porém obsoleto e com menor desempenho, e o servidor \textbf{Wayland}, mais moderno e rápido, porém com menos suporte a hardwares antigos. Neste tutorial vamos seguir o caminho legado, porém o leitor pode optar posteriormente por outras combinações de servidor gráfico.
+
+$$ \texttt{sudo apt install xorg dbus-x11} $$
+
+O comando acima deve ser o suficiente para instalar o \texttt{X11}. O \texttt{dbus-x11} antigamente era instalado como default, mas como sua funcionalidade tem sido substituída em sistemas modernos ele precisa ser instalado para evitar erros de inicialização de alguns aplicativos. Como estamos em uma instalação mínima é interessante abrir aplicativos gráficos recém instalados via terminal para observar mensagens de erro, que podem ser devido a pacotes extras que não foram instalados. \\
+
+\begin{lstlisting}
+# Inventário [ Servidor Gráfico ] { Linux }
+# 1. apt install xorg ; instala o servidor gráfico X
+# 2. apt install xterm ; emulador de terminal X
+# 3. startx ; inicia manualmente uma sessão gráfica X
+# 4. Ctrl+Alt+Backspace ; atalho do teclado para terminar uma sessão X
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Ao instalar o xorg, o usuário pode começar a usar programas de interface gráfica, mesmo sem um gerenciador de janelas. Você pode testar por exemplo instalar o editor de texto geany. No tty, inicie a sessão gráfica com \texttt{startx}, após isso instale o geany com \texttt{sudo apt install geany} e execute \texttt{geany} para abrir o programa via terminal. Você pode também navegar na internet instalando o firefox com \texttt{sudo apt install firefox-esr} e executando \texttt{firefox} no terminal da sessão gráfica.\\
+
+Caso tenha algum problema com o teclado você pode executar alguns dos comandos abaixo: \\
+
+\begin{lstlisting}
+# Inventário [ Configurações do Teclado ] { Linux, Debian }
+# 1. sudo dpkg-reconfigure keyboard-configuration ; Reconfigura manualmente o teclado.
+# 2. setxkbmap -query ; Mostra as configurações do teclado.
+# 3. setxkbmap br ; Muda o layout do teclado para português brasileiro.
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+\begin{lstlisting}
+* Como instalar o gerenciador de janelas i3 ?
+* Quais os arquivos de configuração do i3 ?
+* Como instalar o compositor de janelas picom ?
+* Quais os arquivos de configuração do compositor de janelas picom ? 
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Umas das coisas que podem deixar o usuário confuso ao lidar com o gerenciador de janelas \textbf{i3} é que ele não usa nenhum dos arquivos de configuração do \textbf{X11}, portanto mexer nos arquivos de configuração em \texttt{/etc/X11/} podem não ter o efeito desejado ou até entrar em conflito com as configurações do \textbf{i3}. Quando instalar o i3 a lógica de inicialização vai estar na pasta \texttt{/etc/alternatives/} nos links associados ao x-session que irão apontar para executáveis i3. Instale o i3 no tty, saia do X usando o comando exit e execute os comandos:
+
+$$ \texttt{sudo apt install i3} $$
+$$ \texttt{startx} $$
+
+Ao iniciar o X o atalho do x-session vai chamar a execução do i3. A primeira execução do gerenciador i3 é importante para definir a tecla principal do gerenciador (deixe no default como a tecla \texttt{Win} que é a tecla entre o \texttt{ctrl} e \texttt{alt} na maioria dos teclados) e aceite a criação do arquivo de configuração inicial. Caso você tenha rejeitado a criação do arquivo de configuração inicial, basta executar \texttt{i3-config-wizard} no terminal da sessão X. \\
+
+\begin{lstlisting}
+# Inventário [ Gerenciador de Janelas i3 ] { Linux Bash }
+# -- terminal -- 
+# 1. apt install i3 ; ...
+# 2. i3lock ; bloqueia o desktop com senha para o usuário.
+# -- atalhos de teclado -- 
+# 1. Win+Shift+e ; fecha a sessão i3.
+# 2. Win+Enter ; abre o emulador padrão de terminal.
+# 3. Win+D ; abre o menu de busca de aplicativos.
+# 4. Win+Setas ; navega entre as janelas abertas.
+# 5. Win+Shift+q ; fecha uma janela.
+# 6. Win+Shift+Setas ; move as janelas de posição.
+# 7. Win+H ; disposição horizontal de janelas.
+# 8. Win+V ; disposição vertical de janelas.
+# 9. Win+S ; muda o layout para o modo stack.
+# 10. Win+W ; muda o layout para o modo tabs.
+# 11. Win+E ; alterna o layout entre vertical e horizontal.
+# 12. Win+Número ; alterna entre áreas de trabalho.
+# 13. Win+Shift+Número ; move janelas entre áreas de trabalho. 
+# 14. Win+F ; alterna o modo tela cheia.
+# 15. Win+Shift+Espaço ; alterna para o modo janela flutuante.
+# 16. Win+Espaço ; alterna o foco entre janela flutuante e janelas em blocos.
+# 17. Win+R ; modo para mudar tamanho dos blocos.
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Ao iniciar o i3 você irá notar que somente o monitor da placa mãe é reconhecido. Para que ele reconheça o monitor da placa de vídeo é interessante você instalar primeiro os drivers proprietários da sua placa de vídeo. Você terá que editar o arquivo \texttt{/etc/apt/sources.list} e habilitar as versões \texttt{non-free}, \texttt{contrib}, \texttt{non-free-firmware}. \\
+
+Coloque as palavras-chave (\texttt{non-free}, \texttt{contrib}, \texttt{non-free-firmware}) em cada linha não comentada de forma a ficar mais ou menos como abaixo:\\
+
+\begin{lstlisting}
+deb http://deb.debian.org/debian/ trixie main non-free-firmware contrib non-free
+deb-src http://deb.debian.org/debian/ trixie main non-free-firmware contrib non-free
+
+deb http://security.debian.org/debian-security trixie-security main non-free-firmware contrib non-free
+deb-src http://security.debian.org/debian-security trixie-security main non-free-firmware contrib non-free
+
+# trixie-updates, to get updates before a point release is made;
+# see https://www.debian.org/doc/manuals/debian-reference/ch02.en.html#_updates_and_backports
+deb http://deb.debian.org/debian/ trixie-updates main non-free-firmware contrib non-free
+deb-src http://deb.debian.org/debian/ trixie-updates main non-free-firmware contrib non-free
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Estas versões de repositório contém drivers proprietários requeridos para instalação de drivers gráficos e firmwares específicos de outros componentes de hardware.\\
+
+\begin{lstlisting}
+* Como instalar os drivers proprietários da nvidia, amd e intel ?
+* Como configurar dois monitores com tela estendida em X11 ? 
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Instale os pacotes \texttt{firmware-linux}, \texttt{firmware-linux-nonfree}, \texttt{firmware-misc-nonfree} e os drivers da sua placa de vídeo. Se você utilizar placas de vídeo da \texttt{nvidia} você vai precisar instalar os headers específicos para a sua versão de kernel, caso contrário o driver não irá funcionar. Instale o nvidia-detect e execute \texttt{nvidia-detect} para o software detectar automaticamente a melhor versão de driver, siga as instruções de instalação sugeridas e depois execute \texttt{nvidia-settings} para checar por mensagens de erro ou modificar configurações.\\
+
+\begin{lstlisting}
+# Inventário [ Drivers Gráficos ] { Linux, Debian }
+# 1. apt install firmware-linux firmware-linux-nonfree firmware-misc-nonfree
+# 2. apt install linux-headers-$(uname -r) nvidia-detect ; programa nvidia para detectar a placa gráfica.
+# 3. apt install nvidia-driver ; instala o driver nvidia, porém siga a recomendação do nvidia-detect antes.
+# 4. apt install xserver-xorg-video-amdgpu firmware-amd-graphics ; instala driver gráfico da amd.
+# 5. xrandr --listproviders ; lista as saídas de vídeo disponíveis.
+# 6. xrandr --query ; lista completa sobre as saídas de vídeo e suas configurações.
+# 7. xrandr --setprovideroutputsource provider_fonte provider_saida ; configura o vídeo de saída para renderizar o resultado processado do provedor fonte, geralmente uma placa gráfica dedicada. Usado para o modo de tela estendida. 
+# 8. xrandr --output DISPLAY1 --primary --auto --output DISPLAY2 --auto --right-of DISPLAY1 ; configura o modo de tela estendida com o DISPLAY2 à direita do DISPLAY1.
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Ao instalar componentes fundamentais como drivers é interessante você executar \texttt{sudo reboot} para reiniciar o sistema antes de prosseguir por novas modificações. \\
+
+Se você estiver ainda testando em máquina virtual pule a configuração de dois monitores. Para configurar dois monitores como visualização estendida, depois de reiniciado e iniciado a sessão do \texttt{i3}, execute o \texttt{xrandr --listproviders} para listar os provedores gráficos. Deverá aparecer números associados para os monitores conectados, estes números serão usados no comando \texttt{xrandr --setprovideroutputsource N1 N2}, sendo \texttt{N1} o provedor da placa gráfica e \texttt{N2} o provedor que irá receber os dados da placa gráfica, geralente o monitor integrado ou a saída de vídeo da placa-mãe.\\
+
+Feito isso agora basta executar o comando \texttt{xrandr --query} para listar os nomes dos monitores e executar:
+$$ \texttt{xrandr --output D1 --primary --auto --output D2 --auto --right-of D1} $$
+
+O \texttt{D1} é o monitor principal, \texttt{D2} é o monitor secundário. Na disposição acima o monitor secundário está à direita do principal, caso não seja esta a disposição, basta substituir \texttt{--right-of} por \texttt{--left-of} para configurar corretamente.\\
+
+\begin{lstlisting}
+# Sugestão de Aliases
+# substitua os nomes dos monitores pelo nome mostrado no xrandr --query
+D1='MAIN_MONITOR_NAME' # monitor principal
+D2='SEC_MONITOR_NAME' # monitor secundário
+alias dualmonitor1='xrandr --output $D1 --primary --auto --output $D2 --auto --right-of $D1'
+alias dualmonitor2='xrandr --output $D1 --primary --auto --output $D2 --auto --left-of $D1'
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Para inicializar automaticamente uma disposição de monitores, o usuário pode optar por colocar os comandos diretamente no arquivo de configuração do \texttt{i3}. Basta editar o arquivo \texttt{$\sim$/.config/i3/config} e colocar a linha no final do arquivo (com as devidas modificações): \\
+
+\begin{lstlisting}
+exec_always --no-startup-id xrandr --output D1 --primary --auto --output D2 --auto --right-of D1
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Agora que os monitores estão devidamente funcionais, é interessante você instalar um compositor compatível, como dito na introdução do tutorial, o compositor tem como função combinar a renderização das janelas, permitindo efeitos de transparência por exemplo. \\
+
+Existem outras opções de compositores além do picom, porém as outras opções são geralmente inferiores, portanto a combinação \texttt{i3+picom} é quase padrão na comunidade do \texttt{i3}. \\
+
+\begin{lstlisting}
+# Inventário [ picom ] { Linux, Debian }
+# -- terminal -- 
+# 1. apt install picom ; instala o pacote do compositor picom 
+# 2. picom --config ~/.config/picom/picom.conf & ; executa em segundo plano com o arquivo de configuração.
+# 3. xprop WM_CLASS ; para obter o nome da classe de janela usada no arquivo de configurações.
+# -- variáveis do arquivo de configuração -- 
+# 1. backend = "glx" ; # glx, egl, xrender, xr_glx_hybrid // backend de renderização.
+# 2. vsync = true ; # false // sincronia vertical 
+# 3. use-damage = true ; # true, false // atualiza apenas regiões alteradas.
+# -- opacidade --
+# 1. active-opacity = 0.8 # 0.0-1.0 // opacidade da janela em foco.
+# 2. inactive-opacity = 0.8 # 0.0-1.0 // opacidade das janelas em segundo plano.
+# 3. detect-client-opacity = true ; # usa opacidade definida pela aplicação.
+# 4. frame-opacity = 1.0 ; # opacidade das bordas da janela.
+# 5. // array para configuração de opacidade customizada
+opacity-rule = [
+	"85:class_g='UXTerm' && focused", # opacidade do terminal em foco 
+    "75:class_g='UXTerm' && !focused", # opacidade do terminal desfocado
+] 
+# -- blur --
+# 1. blur-method = "kernel" ; # método de blur.
+# 2. blur-strength = 3 ; # intensidade do blur.
+# 3. blur-background = true ; # ativa blur no fundo.
+# -- fading -- 
+# 1. fading = true ; # ativa animações de fade.
+# 2. fade-in-step = 0.03 ; # velocidade do fade-in.
+# 3. fade-out-step = 0.03 ; # velocidade do fade-out.
+# 4. fade-delta = 5 ; # intervalo entre frames do fade.
+# -- sombras -- 
+# 1. shadow = true ; # ativa sombras.
+# 2. shadow-radius = 12 ; # raio da sombra.
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Para fazer com que o servidor do picom inicialize automaticamente basta colocar a linha abaixo no fim do arquivo de configurações \texttt{$\sim$/.config/i3/config} do \texttt{i3}.\\
+
+\begin{lstlisting}
+exec --no-startup-id picom --config ~/.config/picom/picom.conf & 
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+\begin{lstlisting}
+* O que são runtimes ? 
+* O que são toolkits de interface gráfica ?
+** Quais toolkits de interfaces gráficas mais comuns em linux ? 
+** O que são interfaces gráficas GTK ?
+*** Quais pacotes são necessários para utilizar interfaces GTK ?
+** O que são interfaces gráficas Qt ? 
+*** Quais pacotes são necessários para utilizar interfaces Qt ? 
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+As interfaces gráficas em linux geralmente requerem toolkits como GTK (Gimp Toolkit) ou Qt. Programas escritos com estas ferramentas precisam de bibliotecas/pacotes extras para que funcionem corretamente, especialmente em instalações minimalistas como a deste tutorial. \\
+
+\begin{lstlisting}
+sudo apt install libgtk-3-0 libgtk-4-1
+sudo apt install libqt5core5a libqt5gui5 libqt5widgets5 libqt5network5
+sudo apt install libqt6core6 libqt6gui6 libqt6widgets6 libqt6network6
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Com estes toolkits você poderá utilizar programas de interface gráfica para mudar configurações. Por exemplo \texttt{arandr} e \texttt{lxrandr} são interfaces GTK para fazer alterações no modo de tela, \texttt{thunar} é uma interface para navegar no sistema de arquivos, \texttt{lxappearance} é uma interface para customizar as interfaces GTK.\\
+
+Os pacotes GTK e Qt geralmente não são instalados automaticamente, por isso, ao instalar aplicativos é comum ocorrer erros de execução em instações mínimas como a deste tutorial. Outros toolkits menos comuns não precisam deste cuidado, pois não são esperados pelos pacotes, portanto eles são instalados automaticamente pelo gerenciador de pacotes. \\
+
+O pacote de interface GTK pode ser customizado via temas, estes por sua vez podem ser acessados usando o \texttt{lxappearance}. Crie a pasta temas com o comando \texttt{mkdir $\sim$/.themes/} e coloque os temas GTK que você baixar, extraindo o seu conteúdo nesta pasta. Nunca execute scripts \texttt{.sh} de instalação de temas, os temas GTK não requerem execução de scripts, porém você pode encontrar temas via instalação pelo repositório oficial (via \texttt{apt}). 
+
+% ==============================================================================================
+\section{Pipewire+Wireplumber - Servidor de Áudio}
+
+\vspace{\baselineskip}
+
+Para instalar o servidor de áudio execute os comandos de instalação e registro abaixo:\\
+
+\begin{lstlisting}
+sudo apt install pipewire pipewire-pulse pipewire-alsa pipewire-jack 
+sudo apt install wireplumber
+sudo apt install pavucontrol alsa-utils 
+systemctl --user enable --now pipewire pipewire-pulse wireplumber
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+A primeira e segunda linha instala os componentes essenciais para o servidor de áudio operar, a terceira linha instala ferramentas de interface gráfica (alsamixer, pavucontrol) e a quarta linha ativa o serviço, habilitando para a inicialização automática. \\
+
+Se o seu computador tiver várias saídas de áudio ainda será necessário configurar a saída utilizando a ferramenta \texttt{wpctl}. Execute \texttt{wpctl status} para verificar os dispositivos e execute \texttt{wpctil set-default <NUMERO>} com o \texttt{sink} correspondente a saída de áudio. \\
+
+\begin{lstlisting}
+# Inventário [ Servidor de Áudio Pipewire ] { Linux, Debian }
+# 1. wpctl status ; mostra os dispositivos de áudio.
+# 2. wpctl set-default ID ; muda a saída de áudio.
+# 3. speaker-test -c 2 -D pulse ; testa a saída de áudio.
+# 4. alsamixer ; interface de terminal do alsa-utils.
+# 5. pavucontrol ; interface gráfica gtk de configuração de áudio.
+\end{lstlisting}
+
+
+% ==============================================================================================
+\section{Outros}
+
+\begin{lstlisting}
+Práticas de Segurança Linux 
+1. Dê preferência por instalação via repositórios oficiais ; Repósitórios oficiais da sua distribuição linux são regularmente mantidos pela distribuição, verificando assinaturas digitais e mantendo dependências seguras.
+2. Ao utilizar repositórios de terceiros verifique as assinaturas GPG.
+3. Atualize regularmente o sistema para obter correções e atualizações de segurança.
+4. Evite instalação via script .sh ; Usar scripts para instalação é uma má prática. Algumas fontes conhecidas usam scripts deste tipo, porém você deve ler atentamente o script e evitar fontes desconhecidas. 
+5. Sempre tente executar uma tarefa primeiro como usuário normal ; Boa parte das tarefas, incluso algumas instalações, podem ser feitas como usuário normal, use sudo somente se necessário.
+6. Reputação e Auditoria ; Um repositório/aplicativo ser de código-aberto não implica automaticamente em segurança, é necessário que auditorias sejam feitas regularmente e tenha uma comunidade ativa. É muito arriscado usar repositórios pouco conhecidos ou abandonados. 
+7. Compilação a partir da fonte ; Se o aplicativo for de código aberto, é possível optar por binários já pré-compilados. Geralmente os repositórios disponibilizam as checksums para fazer a comparação, porém a compilação a partir da fonte costuma ser mais segura. 
+8. Checksums ; O binário de um aplicativo pode ser comparado com o original usando o recurso checksum. Checksums são algoritmos que retornam um valor numérico a partir de um arquivo binário, a ideia é que para um mesmo aplicativo temos apenas um valor de checksum para um mesmo algoritmo, então é possível verificar se um aplicativo é autentico ou se não foi alterado ou corrompido. 
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Um aplicativo de código-aberto não se torna automaticamente seguro, é necessário haver uma comunidade de programadores para fazer auditorias de código de maneira regular. Projetos pequenos ou abandonados podem ser um risco de segurança para o usuário. \\
+
+Muitos aplicativos de código-aberto disponibilizam binários pré-compilados, o que torna mais prático para projetos grandes, pois a compilação a partir da fonte exige algum conhecimento de programação além de consumir tempo e processamento do computador. Para verificar se os binários pré-compilados correspondem ao resultado da compilação as distribuições linux vem equipadas com comandos para calcular checksums. Esses comandos geram um número (hash) a partir do conteúdo do próprio arquivo binário, então um mesmo arquivo binário gera apenas um único número para um mesmo algoritmo. Seria ideal que para um mesmo algoritmo dois binários diferentes gerassem valores diferentes, mas não é sempre isso que acontece, então esse método deve ser interpretado da seguinte forma, binários adulterados tem maiores chances de gerarem valores diferentes dependendo do algoritmo. Quando dois binários geram um mesmo hash dizemos que há colisão. \\
+
+\begin{lstlisting}
+# Inventário [ Checksums ] { Linux, Debian }
+# 1. sha256sum <ARQUIVO> # SHA-256 (256-bit) - Checksum Padrão, com chance de colisão estatisticamente irrelevante. 
+# 2. md5sum <ARQUIVO> # MD5 (128-bit) - Não é mais utilizado para autenticação por ser fácil forjar colisão de hash com ferramentas atuais. Porém pode ser usado para verificar modificações e corrupções durante cópia e transferência de arquivos. 
+# 3. sha1sum <ARQUIVO> # SHA-1 (160-bit) - Não pode mais ser utilizado para autenticação, porém pode ser usado para verificar modificações e corrupções durante cópia e transferência de arquivos.
+# 4. sha384sum <ARQUIVO> # SHA-384 (384-bit) - Mais forte que SHA-256.
+# 5. sha512sum <ARQUIVO> # SHA-512 (512-bit) - Hash maior, mais forte que SHA-256.
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Para verificar autenticidade geralmente você irá comparar o sha256sum gerado pelo seu arquivo com o do distribuidor. Para verificar corrupção não intencional de arquivos durante transferência ou cópia você pode utilizar o md5sum ou sha1sum que podem detectar erros de transferência. \\    
+
+\hspace{\baselineskip}
+
+Verdade seja dita, como os usuários linux precisam eventualmente lidar com arquivos de configurações e scripts, os usuários linux estão mais próximos de aprender programação que os usuários de outros sistemas. Uma das linguagens que o usuário linux pode aprender imediatamente é a linguagem de scripts do sistema \texttt{bash} (arquivos com extensão \texttt{.sh}). Todos os comandos de terminal são comandos da linguagem de script \texttt{bash}, a diferença é que dentro do terminal o usuário geralmente não está executando nenhuma lógica elaborada (apenas comandos sequenciais). \\
+
+\begin{lstlisting}
+* O que é programar ? 
+* O que são estruturas de controle ?
+** O que são estruturas condicionais ?
+** O que são laços de repetição ?
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Programar está conceitualmente relacionado a automatizar para realizar uma tarefa, e automatizar pode ser decomposto em mais três conceitos: procura, decisão e execução. Os comandos feitos no terminal podem ser vistos como execuções de tarefas em que a procura e a tomada de decisão são feitas pelo usuário.\\
+
+Para tomar decisões você precisa de uma sintaxe para checar condições e para fazer procuras você precisa de uma sintaxe que permita repetir processos de checagem e execução. Por isso as estruturas de controle condicionais e de repetição são fundamentais para a lógica de programação, sem elas não é possível automatizar tarefas. \\
+
+Como este tutorial foi feito na era das inteligências artificiais \texttt{LLM}, não vamos entrar nos detalhes da sintaxe, mas sim descrever a lógica de uma automação para que uma \texttt{LLM} crie um script que implemente tal lógica. Vamos utilizar uma sintaxe própria que permita criar prompts facilmente: \\
+
+\begin{lstlisting}
+# Sintaxe de Lógica de Programação:
+# 1. A := Descrição Informal do Comando // Definição do Comando A com um símbolo ou palavra
+# 2. A | B // comando B é feito após o comando A sequencialmente
+# 3. A || B // comando B pertence a estrutura de A 
+# 4. % I // condicional 
+# 5. & R // repetição 
+
+Alimente a LLM com esta sintaxe, para que ela saiba o significado. 
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Vamos agora criar um script para automatizar a mudança de background, primeiro instale o pacote \texttt{sudo apt install feh}. Este aplicativo é apenas um visualizador de imagens que é compatível com o \texttt{i3} para mudar a imagem de fundo. \\
+
+\begin{lstlisting}
+# Prompt { Linux, Debian } :
+# > Crie o script com a seguinte lógica:
+# I := Se o diretório ~/Pictures/Backgrounds/ existir e não estiver vazio.
+# R := Selecione aleatoriamente uma imagem de ~/Pictures/Backgrounds/ como background usando feh.
+# S := Pause por 5 minutos.
+# 1. random_background.sh || & || %I || R 
+# 2. random_background.sh || & || %I | S 
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+A declaração (1) significa que o script tem um loop que caso encontre imagens no diretório então seleciona aleatoriamente uma imagem como background. A declaração (2) significa depois desta execução condicional o script irá pausar por 5 minutos para então repetir este processo indefinidamente. \\
+
+Esta linguagem de prompt é uma linguagem semiformal que pode ser utilizada para o design de scripts de automação com auxílio de inteligências artificiais. Porém nem todas as inteligências artificiais são inteligentes o suficiente para entender, certifique-se de que o script gerado faça algum sentido e verifique como prova real o que o script faz com outra inteligência artificial ou outra conversa.\\
+
+Crie o arquivo com o comando \texttt{touch random\_background.sh}, copie e cole o resultado do prompt no arquivo usando algum editor de texto (como o geany) e ative com o comando \texttt{bash random\_background.sh \&}. Certifique-se também de que o script consiga lidar com possíveis erros antes de tentar inicializar o script de maneira automática (que pode ser feito através do arquivo de configuração i3 ou da pasta \texttt{.config/autostart/}). \\
+
+\begin{lstlisting}
+# Perguntas de Verificação do Script
+# ... alimente a I.A. com o script e faça estas perguntas 
+# 1. O que acontece se o diretório Backgrounds for apagado, movido ou renomeado?
+# 2. O que acontece se novas imagens forem adicionadas?
+# 3. O que acontece se houver deleção ou renomeação de imagens?
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Programar não é ter uma ideia esperar um script dar certo de primeira, é necessário ter responsabilidade pelo resultado final, é necessário checar os casos onde o script pode dar errado e refinar até esgotar as possibilidades de erro. Como esse não é um tutorial de programação, faça esse trabalho com supervisão de inteligências artificiais e sempre faça a prova real do script gerado. \\
+
+Caso tenha dificuldade, o script deve ter mais ou menos a forma abaixo:\\
+
+\begin{lstlisting}
+#!/bin/bash
+# random_background.sh
+# Seleciona backgrounds aleatórios continuamente.
+BACKGROUND_DIRECTORY="$HOME/Pictures/Backgrounds"
+while true; do
+    # I := Se o diretório existir e não estiver vazio
+    if [ -d "$BACKGROUND_DIRECTORY" ] && \
+       [ -n "$(find "$BACKGROUND_DIRECTORY" -type f 2>/dev/null)" ]; then
+        # R := Seleciona aleatoriamente uma imagem como background
+        RANDOM_BACKGROUND="$(find "$BACKGROUND_DIRECTORY" -type f | shuf -n 1)"
+        feh --bg-fill "$RANDOM_BACKGROUND"
+    fi
+    # S := Pause por 5 minutos
+    sleep 300
+done
+\end{lstlisting}
+
+
+% ==============================================================================================
+\end{document}
+
+
+
+
+% END 
