@@ -178,7 +178,8 @@ void openTerminal(const std::filesystem::path& path, const std::string& term) {
         _exit(127); // exec failed
     }
 }
-std::wstring utf8_to_wstring(const std::string& str) {
+
+std::wstring utf8_to_wstring_BACKUP22062026(const std::string& str) {
     iconv_t cd = iconv_open("WCHAR_T", "UTF-8");
     if (cd == (iconv_t)-1) {
         throw std::runtime_error("iconv_open failed");
@@ -204,41 +205,276 @@ std::wstring utf8_to_wstring(const std::string& str) {
     return std::wstring(wdata, wchar_count);
 }
 
+std::wstring utf8_to_wstring(const std::string& str) {
+    if (str.empty()) return L"";
 
+    // Linux-specific: wchar_t is always 32-bit (UTF-32).
+    // We only need to detect Endianness.
+    #if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+        const char* w_encoding = "UTF-32BE";
+    #else
+        // Default to Little-Endian (covers x86_64, ARM64, RISC-V)
+        const char* w_encoding = "UTF-32LE";
+    #endif
+
+    iconv_t cd = iconv_open(w_encoding, "UTF-8");
+    if (cd == (iconv_t)-1) {
+        throw std::runtime_error("iconv_open failed: " + std::string(strerror(errno)));
+    }
+
+    const char* in_ptr = str.data();
+    size_t in_bytes = str.size();
+
+    // Allocation: UTF-8 (max 4 bytes) -> UTF-32 (4 bytes)
+    // Safe upper bound: 1 input byte -> 1 output wchar_t
+    size_t out_bytes = (in_bytes + 1) * sizeof(wchar_t); 
+    std::vector<char> buffer(out_bytes);
+    
+    char* out_ptr = buffer.data();
+    size_t out_bytes_left = out_bytes;
+
+    size_t res = iconv(cd, const_cast<char**>(&in_ptr), &in_bytes, &out_ptr, &out_bytes_left);
+    
+    iconv_close(cd);
+
+    if (res == (size_t)-1) {
+        throw std::runtime_error("iconv conversion failed: " + std::string(strerror(errno)));
+    }
+
+    size_t bytes_written = out_bytes - out_bytes_left;
+    size_t wchar_count = bytes_written / sizeof(wchar_t);
+    
+    return std::wstring(reinterpret_cast<wchar_t*>(buffer.data()), wchar_count);
+}      
+std::string wstring_to_utf8(const std::wstring& wstr) {
+    std::string utf8_line;
+    utf8_line.reserve(wstr.size() * 4); 
+
+    for (wchar_t wc : wstr) {
+        // Optional: Handle invalid surrogate pairs if porting from Windows logic
+        // (Not needed on Linux as wchar_t is 32-bit, but good for safety)
+        if (wc >= 0xD800 && wc <= 0xDFFF) {
+            // Invalid surrogate in UTF-32 context. 
+            // Replace with U+FFFD or skip.
+            utf8_line.push_back(static_cast<char>(0xEF));
+            utf8_line.push_back(static_cast<char>(0xBF));
+            utf8_line.push_back(static_cast<char>(0xBD));
+            continue;
+        }
+
+        if (wc < 0x80) {
+            // 1-byte (ASCII)
+            utf8_line.push_back(static_cast<char>(wc));
+        } else if (wc < 0x800) {
+            // 2-byte
+            utf8_line.push_back(static_cast<char>(0xC0 | (wc >> 6)));
+            utf8_line.push_back(static_cast<char>(0x80 | (wc & 0x3F)));
+        } else if (wc < 0x10000) {
+            // 3-byte
+            utf8_line.push_back(static_cast<char>(0xE0 | (wc >> 12)));
+            utf8_line.push_back(static_cast<char>(0x80 | ((wc >> 6) & 0x3F)));
+            utf8_line.push_back(static_cast<char>(0x80 | (wc & 0x3F)));
+        } else if (wc <= 0x10FFFF) {
+            // 4-byte (VALID Unicode range only)
+            utf8_line.push_back(static_cast<char>(0xF0 | (wc >> 18)));
+            utf8_line.push_back(static_cast<char>(0x80 | ((wc >> 12) & 0x3F)));
+            utf8_line.push_back(static_cast<char>(0x80 | ((wc >> 6) & 0x3F)));
+            utf8_line.push_back(static_cast<char>(0x80 | (wc & 0x3F)));
+        } else {
+            // INVALID code point (> 0x10FFFF). 
+            // Replace with U+FFFD (Replacement Character)
+            utf8_line.push_back(static_cast<char>(0xEF));
+            utf8_line.push_back(static_cast<char>(0xBF));
+            utf8_line.push_back(static_cast<char>(0xBD));
+        }
+    }
+    return utf8_line;
+}   
 std::wstring getTimeStamp() {
-fail:
-    return L"YYYY-MM-DDT00-00-00";
+    try {
+        auto now = std::chrono::system_clock::now();
+        auto local_time = std::chrono::current_zone()->to_local(now);
+        return std::format(L"{:%Y-%m-%dT%H-%M-%S}", local_time);
+    } catch (...) {
+        return L"YYYY-MM-DDT00-00-00";
+    }
 }
-
+std::string str_getTimeStamp() {
+    try {
+        auto now = std::chrono::system_clock::now();
+        auto local_time = std::chrono::current_zone()->to_local(now);
+        return std::format("{:%Y-%m-%dT%H-%M-%S}", local_time);
+    } catch (...) {
+        return "YYYY-MM-DDT00-00-00";
+    }
+}
 bool saveFile(std::filesystem::path dest, std::wstring filename, std::wstring content) {
-    // ...
-fail:
-    return false;    
-}
-
-bool createCopyToBashScript(std::set<std::filesystem::path> list, std::filesystem::path dest) {
-    if (list.empty()) return false;
     if (!dest.is_absolute()) return false;
     if (!std::filesystem::exists(dest)) return false;
-    // ...    
-fail:
-    return false;
+    try {
+        std::filesystem::path fullPath = dest / filename;
+        std::string utf8Content = wstring_to_utf8(content);
+        std::ofstream outFile(fullPath, std::ios::out | std::ios::trunc);
+        if (!outFile.is_open()) return false;
+        outFile << utf8Content;
+        if (!outFile.good()) return false;
+        outFile.close();
+        return true;
+    } catch (const std::filesystem::filesystem_error& e) {
+        // Handle path errors (permissions, invalid chars, etc.)
+        return false;
+    } catch (...) {
+        // Handle any other unexpected errors
+        return false;
+    }
 }
-
-bool createMoveToBashScript(std::set<std::filesystem::path> list, std::filesystem::path dest) {
-    if (list.empty()) return false;
+bool saveFile(std::filesystem::path dest, std::wstring filename, std::string content) {
+    // Validate destination
     if (!dest.is_absolute()) return false;
-    if (!std::filesystem::exists(dest)) return false;
-    // ...    
-fail:    
-    return false;
-}
+    
+    // Ensure destination exists and is a directory
+    if (!std::filesystem::exists(dest) || !std::filesystem::is_directory(dest)) {
+        return false;
+    }
 
-bool createDeleteBashScript(std::set<std::filesystem::path> list) {
-    if (list.empty()) return false;
-    // ...    
-fail:    
-    return false;
+    try {
+        // Construct full path
+        // Note: std::filesystem::path handles mixing wstring filename and path seamlessly on Linux
+        std::filesystem::path fullPath = dest / filename;
+
+        // Write directly to file
+        // No conversion needed: content is already std::string (UTF-8)
+        std::ofstream outFile(fullPath, std::ios::out | std::ios::trunc);
+
+        if (!outFile.is_open()) {
+            return false;
+        }
+
+        outFile << content;
+
+        // Check for write errors
+        if (!outFile.good()) {
+            return false;
+        }
+        
+        outFile.close();
+        return true;
+
+    } catch (const std::filesystem::filesystem_error& e) {
+        return false;
+    } catch (...) {
+        return false;
+    }
+}   
+std::string bash_escape(const std::string& input) {
+    std::string output;
+    output.reserve(input.size() + 10); // Reserve to avoid reallocations
+    output.push_back('\''); // Start single quote
+    
+    for (char c : input) {
+        if (c == '\'') {
+            // End quote, escaped single quote, start quote
+            output += "'\\''";
+        } else {
+            output.push_back(c);
+        }
+    }
+    
+    output.push_back('\''); // End single quote
+    return output;
+}
+std::string createCopyToBashScript(std::set<std::filesystem::path> list, std::filesystem::path dest) {
+    if (list.empty()) return "";
+    if (!dest.is_absolute()) return "";
+    if (!std::filesystem::exists(dest)) return "";
+    if (!std::filesystem::is_directory(dest)) return "";
+    try {
+        std::ostringstream script;
+        // Write Shebang
+        script << "#!/bin/bash\n";
+        script << "# Auto-generated copy script\n";
+        script << "set -e  # Exit on error\n\n";
+        // Write copy commands
+        // Using 'cp' with explicit escaping for every path
+        for (const auto& filePath : list) {
+            if (std::filesystem::exists(filePath)) {
+                // Convert paths to native strings and escape them
+                std::string srcEscaped = bash_escape(filePath.string());
+                std::string destEscaped = bash_escape(dest.string());
+                // Check if the source is a directory
+                if (std::filesystem::is_directory(filePath)) {
+                    // Add -r flag for directories
+                    script << "cp -r " << srcEscaped << " " << destEscaped << "\n";
+                } else {
+                    // Standard copy for files
+                    script << "cp " << srcEscaped << " " << destEscaped << "\n";
+                }
+            }
+        }
+        return script.str();
+    } catch (const std::filesystem::filesystem_error& e) {
+        return "";
+    } catch (...) {
+        return "";
+    }
+}
+std::string createMoveToBashScript(std::set<std::filesystem::path> list, std::filesystem::path dest) {
+    if (list.empty()) return "";
+    if (!dest.is_absolute()) return "";
+    if (!std::filesystem::exists(dest)) return "";
+    if (!std::filesystem::is_directory(dest)) return "";
+    try {
+        std::ostringstream script;
+        // Write Shebang
+        script << "#!/bin/bash\n";
+        script << "# Auto-generated move script\n";
+        script << "set -e  # Exit on error\n\n";
+        // Write copy commands
+        // Using 'cp' with explicit escaping for every path
+        for (const auto& filePath : list) {
+            if (std::filesystem::exists(filePath)) {
+                // Convert paths to native strings and escape them
+                std::string srcEscaped = bash_escape(filePath.string());
+                std::string destEscaped = bash_escape(dest.string());
+                // Generate: mv 'source' 'destination/'
+                script << "mv " << srcEscaped << " " << destEscaped << "\n";
+            }
+        }
+        return script.str();
+    } catch (const std::filesystem::filesystem_error& e) {
+        return "";
+    } catch (...) {
+        return "";
+    }
+}
+std::string createDeleteBashScript(std::set<std::filesystem::path> list) {
+    if (list.empty()) return "";
+    try {
+        std::ostringstream script;
+        // Write Shebang
+        script << "#!/bin/bash\n";
+        script << "# Auto-generated delete script\n";
+        script << "set -e  # Exit on error\n\n";
+        for (const auto& filePath : list) {
+            if (std::filesystem::exists(filePath)) {
+                // Convert paths to native strings and escape them
+                std::string srcEscaped = bash_escape(filePath.string());
+                // Check if the source is a directory
+                if (std::filesystem::is_directory(filePath)) {
+                    // Add -r flag for directories
+                    script << "rm -r " << srcEscaped << "\n";
+                } else {
+                    // Standard copy for files
+                    script << "rm " << srcEscaped << "\n";
+                }
+            }
+        }
+        return script.str();
+    } catch (const std::filesystem::filesystem_error& e) {
+        return "";
+    } catch (...) {
+        return "";
+    }
 }
 
 // -- classes
@@ -394,6 +630,43 @@ bool TerminalExplorer::isLineSelectedItem(int index) {
     if (path.empty()) return false;
     return this->selected_files.contains( std::filesystem::absolute(path) );
 }
+bool TerminalExplorer::generateCopyFilesScript() {
+    std::string content = createCopyToBashScript(this->selected_files, this->currentDir);
+    if ( content.empty() ) return false;
+    std::wstring tstamp = getTimeStamp();
+    if ( saveFile(this->dropDir, L"copy_script_"+tstamp+L".sh", content) ) {
+        std::wcout << L" -- Copy Script Generate at Drop Directory -- " << std::endl;
+        return true;
+    } else {
+        std::wcout << L" -- Failed to Create Copy Script -- " << std::endl;
+        return false;
+    }
+}
+bool TerminalExplorer::generateMoveFilesScript() {
+    std::string content = createMoveToBashScript(this->selected_files, this->currentDir);
+    if ( content.empty() ) return false;
+    std::wstring tstamp = getTimeStamp();
+    if ( saveFile(this->dropDir, L"move_script_"+tstamp+L".sh", content) ) {
+        std::wcout << L" -- Move Script Generate at Drop Directory -- " << std::endl;
+        return true;
+    } else {
+        std::wcout << L" -- Failed to Create Move Script -- " << std::endl;
+        return false;
+    }
+}
+bool TerminalExplorer::generateDeleteFilesScript() {
+    std::string content = createDeleteBashScript(this->selected_files);
+    if ( content.empty() ) return false;
+    std::wstring tstamp = getTimeStamp();
+    if ( saveFile(this->dropDir, L"delete_script_"+tstamp+L".sh", content) ) {
+        std::wcout << L" -- Delete Script Generate at Drop Directory -- " << std::endl;
+        return true;
+    } else {
+        std::wcout << L" -- Failed to Create Delete Script -- " << std::endl;
+        return false;
+    }
+}
+
 
 /// END CODEX_termios.h 
 

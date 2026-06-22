@@ -9,6 +9,7 @@ notepad-- --horizontal \
     --right \
         /home/user/Projects/LinuxInteractiveTerminal/_grimoire_LinuxInteractiveTerminal.h \
         /home/user/Projects/LinuxInteractiveTerminal/CODEX_termios.h \
+        /home/user/Projects/LinuxInteractiveTerminal/_aiJournal \
 &
 
 # END

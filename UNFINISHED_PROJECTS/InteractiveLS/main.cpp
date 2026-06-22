@@ -70,8 +70,15 @@ int main(int argc, char *argv[]) {
         if (key=='s') Explorer.selectFile(); // select current file or directory
         if (key=='d') Explorer.deselectFile(); // select current file or directory
         if (key=='f') Explorer.clearSelectedFiles(); // clear all
-        if (key=='m') ; // move selected to current directory
-        if (key=='c') ; // copy selected to current directory
+        if (key=='m') { // move selected to current directory
+            if ( Explorer.generateMoveFilesScript() ) break;
+        } 
+        if (key=='c') { // copy selected to current directory
+            if ( Explorer.generateCopyFilesScript() ) break;
+        } 
+        if (key=='x') { // delete selected 
+            if ( Explorer.generateDeleteFilesScript() ) break;
+        } 
         if (key=='u') Explorer.setUpdateList(true); // update ls list 
         Explorer.update();
         Explorer.setUpdateList(false);

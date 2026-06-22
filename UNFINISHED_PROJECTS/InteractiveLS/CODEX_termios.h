@@ -19,6 +19,10 @@
 #include <codecvt>
 #include <locale>
 #include <set>
+#include <chrono>
+#include <format> // C++20
+#include <fstream>
+#include <cerrno>
 
 // -- function declarations
 bool disableRawMode(termios& settings); // Disable echo and set raw mode
@@ -31,11 +35,13 @@ std::vector<std::wstring> split(const std::wstring& input, wchar_t delimiter);
 std::vector<std::string> split(const std::string& input, char delimiter);
 void openTerminal(const std::filesystem::path& path, const std::string& term);
 std::wstring utf8_to_wstring(const std::string& str);
-std::wstring getTimeStamp(); // !
-bool saveFile(std::filesystem::path dest, std::wstring filename, std::wstring content); // !
-bool createCopyToBashScript(std::set<std::filesystem::path> list, std::filesystem::path dest); // !
-bool createMoveToBashScript(std::set<std::filesystem::path> list, std::filesystem::path dest); // !
-bool createDeleteBashScript(std::set<std::filesystem::path> list); // !
+std::wstring getTimeStamp(); // ?
+std::string str_getTimeStamp(); // ?
+bool saveFile(std::filesystem::path dest, std::wstring filename, std::wstring content); // ?
+bool saveFile(std::filesystem::path dest, std::wstring filename, std::string content); // ?
+std::string createCopyToBashScript(std::set<std::filesystem::path> list, std::filesystem::path dest); // ?
+std::string createMoveToBashScript(std::set<std::filesystem::path> list, std::filesystem::path dest); // ?
+std::string createDeleteBashScript(std::set<std::filesystem::path> list); // ?
 
 // 
 class TerminalExplorer {
@@ -54,8 +60,9 @@ public:
     void selectFile();
     void clearSelectedFiles() { this->selected_files.clear(); }
     void deselectFile();
-    void copyFiles(); // !
-    void moveFiles(); // !
+    bool generateCopyFilesScript(); // ?
+    bool generateMoveFilesScript(); // ?
+    bool generateDeleteFilesScript(); // ?
     void setUpdateList(bool value) { this->b_update_ls_list = value; }
     void setDropDir(std::filesystem::path dirPath) { this->dropDir = std::filesystem::absolute(dirPath); }
     bool isLineSelectedItem(int index);
