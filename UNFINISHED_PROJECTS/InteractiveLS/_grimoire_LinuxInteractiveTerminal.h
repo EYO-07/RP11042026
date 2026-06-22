@@ -148,6 +148,19 @@ Workflow [ Programming ] { Magic Oriented Programming Paradigm }
 10. std::ranges::set_intersection // Find common elements
 11. s.insert(element);
 */
+/* Inventory [ Set ] { C++20 }
+1. std::set<T> / std::unordered_set<T>
+2. c.count(val)          // Returns 1 if found, 0 otherwise (Redundant with .contains() in C++20)
+3. c.contains(val)       // Returns bool (true/false) - Preferred in C++20
+4. c.size()              // Total number of unique items
+5. c.empty()             // Check if inventory is empty
+6. c.erase(val)          // Remove item (returns 1 if removed, 0 if not found)
+7. std::erase_if(c, pred)// Bulk remove by condition (C++20)
+8. c.insert(val)         // Add item (returns pair<iterator, bool>)
+9. c.emplace(args...)    // Construct item in-place
+10. c.find(val)          // Get iterator to item (or end())
+11. c.clear()            // Remove all items
+*/   
 
 /// Filesystem 
 /* Inventory [ <filesystem> ] { C++ }

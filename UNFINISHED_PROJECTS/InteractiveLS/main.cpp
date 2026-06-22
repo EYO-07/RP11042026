@@ -17,6 +17,7 @@ int main(int argc, char *argv[]) {
     bool b_exit = false;
     termios settings;
     TerminalExplorer Explorer = TerminalExplorer();
+    Explorer.setDropDir(std::filesystem::current_path());
     // -- arguments 
     if (argc>1) { // processing argument options
         int i;
@@ -47,26 +48,34 @@ int main(int argc, char *argv[]) {
     Explorer.update();    
     char key;
     while (!b_exit) {
-        if (read(STDIN_FILENO, &key, 1) == 1) {
-            if (key == 'q' || key == 'Q') break;
-            clearOutput();
-            std::wcout << std::endl;
-            std::wcout << L"\033[2KLast key: [" << key << L"]\n";
-            std::wcout << std::endl;
-            if (key=='A') Explorer.up();
-            if (key=='B') Explorer.down();
-            if (key=='C') Explorer.right();
-            if (key=='D') Explorer.left();
-            if (key=='t') Explorer.openTerminal();
-            if (key=='H') Explorer.up(10);
-            if (key=='F') Explorer.down(10);
-            if (key=='s') Explorer.selectFile(); // select current file or directory
-            if (key=='d') Explorer.clearSelectedFiles(); // select current file or directory
-            if (key=='m') ; // move selected to current directory
-            if (key=='c') ; // copy selected to current directory
-            Explorer.update();
-            std::cout.flush(); // Force output immediately
+        if (read(STDIN_FILENO, &key, 1) != 1) continue;
+        if (key == 'q' || key == 'Q') break;
+        clearOutput();
+        std::wcout << std::endl;
+        std::wcout << L"\033[2KLast key: [" << key << L"]\n";
+        std::wcout << std::endl;
+        if (key=='i') Explorer.up();
+        if (key=='k') Explorer.down();
+        if (key=='l') {
+            Explorer.setUpdateList(true);
+            Explorer.right();
         }
+        if (key=='j') {
+            Explorer.setUpdateList(true);
+            Explorer.left();
+        }
+        if (key=='t') Explorer.openTerminal();
+        if (key=='y') Explorer.up(10);
+        if (key=='h') Explorer.down(10);
+        if (key=='s') Explorer.selectFile(); // select current file or directory
+        if (key=='d') Explorer.deselectFile(); // select current file or directory
+        if (key=='f') Explorer.clearSelectedFiles(); // clear all
+        if (key=='m') ; // move selected to current directory
+        if (key=='c') ; // copy selected to current directory
+        if (key=='u') Explorer.setUpdateList(true); // update ls list 
+        Explorer.update();
+        Explorer.setUpdateList(false);
+        std::cout.flush(); // Force output immediately 
     }
     // 
 end_main:

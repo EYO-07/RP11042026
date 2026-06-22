@@ -1,0 +1,14 @@
+# BEGIN
+
+notepad-- --horizontal \
+    --left \
+        ./notepad__profile \
+        /home/user/Projects/LinuxInteractiveTerminal/build.sh \
+        /home/user/Projects/LinuxInteractiveTerminal/main.cpp \
+        /home/user/Projects/LinuxInteractiveTerminal/CODEX_termios.cpp \
+    --right \
+        /home/user/Projects/LinuxInteractiveTerminal/_grimoire_LinuxInteractiveTerminal.h \
+        /home/user/Projects/LinuxInteractiveTerminal/CODEX_termios.h \
+&
+
+# END

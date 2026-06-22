@@ -26,11 +26,16 @@ void restoreMode(const termios& settings); // Restore terminal settings
 void saveCursorPosition(); // Necessary for clearOutput to know where to start clearing 
 void clearOutput();
 bool commandOutput(std::wstring command, std::vector<std::wstring>& lines);
-bool changeDirectory(std::wstring path);
+bool changeDirectory(const std::wstring& path);
 std::vector<std::wstring> split(const std::wstring& input, wchar_t delimiter);
 std::vector<std::string> split(const std::string& input, char delimiter);
 void openTerminal(const std::filesystem::path& path, const std::string& term);
 std::wstring utf8_to_wstring(const std::string& str);
+std::wstring getTimeStamp(); // !
+bool saveFile(std::filesystem::path dest, std::wstring filename, std::wstring content); // !
+bool createCopyToBashScript(std::set<std::filesystem::path> list, std::filesystem::path dest); // !
+bool createMoveToBashScript(std::set<std::filesystem::path> list, std::filesystem::path dest); // !
+bool createDeleteBashScript(std::set<std::filesystem::path> list); // !
 
 // 
 class TerminalExplorer {
@@ -48,19 +53,25 @@ public:
     void setGrepArgs(std::wstring arg) { this->grep_arg = arg; } // UNUSED 
     void selectFile();
     void clearSelectedFiles() { this->selected_files.clear(); }
+    void deselectFile();
     void copyFiles(); // !
     void moveFiles(); // !
+    void setUpdateList(bool value) { this->b_update_ls_list = value; }
+    void setDropDir(std::filesystem::path dirPath) { this->dropDir = std::filesystem::absolute(dirPath); }
+    bool isLineSelectedItem(int index);
 protected:
     // -- variables 
     std::vector<std::wstring> lines;
     std::vector<std::wstring> raw_lines;
     std::filesystem::path currentDir;
+    std::filesystem::path dropDir; 
     std::unordered_map<std::filesystem::path, int> path2index;
     int range = 15;
     std::string terminal = "xterm";
     std::wstring grep_arg = L""; // UNUSED 
     std::vector<std::wstring> filters; 
     std::set<std::filesystem::path> selected_files; // UNUSED
+    bool b_update_ls_list = true;
     // -- methods
     bool updateLsCommand();
     std::filesystem::path getPathFromLine(int index); 

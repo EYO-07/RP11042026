@@ -3,6 +3,30 @@
 // -- preprocessor directives
 #include "CODEX_termios.h"
 
+// -- local functions
+std::string wstringToUtf8(const std::wstring& wide) {
+    if (wide.empty()) return "";
+    iconv_t cd = iconv_open("UTF-8", "WCHAR_T");
+    if (cd == (iconv_t)-1) {
+        throw std::runtime_error("iconv_open failed: " + std::string(strerror(errno)));
+    }
+    // iconv expects char**, so we cast the wstring data
+    char* inBuf = const_cast<char*>(reinterpret_cast<const char*>(wide.data()));
+    size_t inBytesLeft = wide.size() * sizeof(wchar_t);
+    // Estimate output buffer size (UTF-8 max 4 bytes per char, plus safety margin)
+    size_t outBytesLeft = inBytesLeft * 4 + 16; 
+    std::string outBuf(outBytesLeft, '\0');
+    char* outPtr = outBuf.data();
+    size_t result = iconv(cd, &inBuf, &inBytesLeft, &outPtr, &outBytesLeft);
+    iconv_close(cd);
+    if (result == (size_t)-1) {
+        throw std::runtime_error("iconv conversion failed: " + std::string(strerror(errno)));
+    }
+    // Resize to actual used length
+    outBuf.resize(outBuf.size() - outBytesLeft);
+    return outBuf;
+}
+
 // -- implementations 
 bool disableRawMode(termios& settings) {
     if (tcgetattr(STDIN_FILENO, &settings) != 0) {
@@ -46,9 +70,14 @@ bool commandOutput(std::wstring command, std::vector<std::wstring>& lines) {
         dup2(pipefd[1], STDERR_FILENO);
         close(pipefd[1]);
         // Convert wstring command to UTF-8 narrow string
-        std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
-        std::string narrowCommand = conv.to_bytes(command);
-        execl("/bin/sh", "sh", "-c", narrowCommand.c_str(), nullptr);
+        //std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
+        //std::string narrowCommand = conv.to_bytes(command);
+        try {
+            std::string narrowCommand = wstringToUtf8(command);
+            execl("/bin/sh", "sh", "-c", narrowCommand.c_str(), nullptr);
+        } catch(...) {
+            // todo 
+        }
         _exit(127);
     } else {
         close(pipefd[1]);
@@ -94,10 +123,13 @@ bool commandOutput(std::wstring command, std::vector<std::wstring>& lines) {
         return WIFEXITED(status) && WEXITSTATUS(status) == 0;
     }
 }
-bool changeDirectory(std::wstring path) {
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
-    std::string narrowPath = conv.to_bytes(path);
-    return chdir(narrowPath.c_str()) == 0;
+bool changeDirectory(const std::wstring& path) {
+    try {
+        std::filesystem::current_path(path);
+        return true;
+    } catch (const std::filesystem::filesystem_error&) {
+        return false;
+    }
 }
 std::vector<std::wstring> split(const std::wstring& input, wchar_t delimiter) {
     std::vector<std::wstring> tokens;
@@ -172,7 +204,44 @@ std::wstring utf8_to_wstring(const std::string& str) {
     return std::wstring(wdata, wchar_count);
 }
 
-//
+
+std::wstring getTimeStamp() {
+fail:
+    return L"YYYY-MM-DDT00-00-00";
+}
+
+bool saveFile(std::filesystem::path dest, std::wstring filename, std::wstring content) {
+    // ...
+fail:
+    return false;    
+}
+
+bool createCopyToBashScript(std::set<std::filesystem::path> list, std::filesystem::path dest) {
+    if (list.empty()) return false;
+    if (!dest.is_absolute()) return false;
+    if (!std::filesystem::exists(dest)) return false;
+    // ...    
+fail:
+    return false;
+}
+
+bool createMoveToBashScript(std::set<std::filesystem::path> list, std::filesystem::path dest) {
+    if (list.empty()) return false;
+    if (!dest.is_absolute()) return false;
+    if (!std::filesystem::exists(dest)) return false;
+    // ...    
+fail:    
+    return false;
+}
+
+bool createDeleteBashScript(std::set<std::filesystem::path> list) {
+    if (list.empty()) return false;
+    // ...    
+fail:    
+    return false;
+}
+
+// -- classes
 TerminalExplorer::TerminalExplorer() {
     this->updateLsCommand();
     this->currentDir = std::filesystem::current_path();
@@ -187,47 +256,47 @@ int TerminalExplorer::getIndex(const std::filesystem::path& dirPath) {
 }
 void TerminalExplorer::update() { 
     std::wcout << "Current Directory :" << this->currentDir << std::endl;
-    std::wcout << "1. q : exit" << std::endl;
+    std::wcout << "-> Script Drop Directory :" << this->dropDir << std::endl;
+    std::wcout << "1. q : exit -- u : update current directory list" << std::endl;
     std::wcout << "2. t : open terminal (" << utf8_to_wstring(this->terminal) << ") in current directory" << std::endl;
-    std::wcout << "3. Arrow Keys : navigation" << std::endl;
-    std::wcout << "4. Home, End : fast navigation" << std::endl;
-    std::wcout << "5. s,d : select/deselect files" << std::endl;
+    std::wcout << "3. i,j,k,l : navigation -- y, h : fast navigation" << std::endl;
+    std::wcout << "4. s,d : select/deselect files" << std::endl;
     coutSelectedFiles();
-    if ( this->updateLsCommand() ) { 
-        int it = 0;
-        if (this->lines.size()>3) {
-            if ( getIndex(this->currentDir)==0 )
-                this->path2index[this->currentDir] = 3;
-        }
-        std::wstring current = L"";
-        for(const std::wstring& item: this->lines) {
-            if (item.empty()) break; 
-            int index = getIndex(this->currentDir);
-            if ( it == index - this->range ) {
-                std::wcout << "..." << std::endl;
-                it++;
-                continue; 
-            }
-            if ( it < index - this->range ) { 
-                it++;
-                continue; 
-            }
-            if ( it > index + this->range ) { 
-                std::wcout << "..." << std::endl;
-                break; 
-            }
-            if ( index == it ) {
-                std::wcout << ">  " << item << "  <" << std::endl;
-                current = item;
-            } else {
-                std::wcout << "   " << item << std::endl;
-            }
-            it++;
-        }
-        std::wcout << std::endl;
-        std::wcout << "Current File/Folder: " << current << " ";
+    if ( this->b_update_ls_list ) this->updateLsCommand(); 
+    int it = 0;
+    if (this->lines.size()>3) {
+        if ( getIndex(this->currentDir)==0 )
+            this->path2index[this->currentDir] = 3;
     }
-    
+    std::wstring current = L"";
+    std::wstring is_selected = L"";
+    for(const std::wstring& item: this->lines) {
+        if (item.empty()) break; 
+        int index = getIndex(this->currentDir);
+        is_selected = this->isLineSelectedItem(it) ? L" * " : L"";
+        if ( it == index - this->range ) {
+            std::wcout << L"..." << std::endl;
+            it++;
+            continue; 
+        }
+        if ( it < index - this->range ) { 
+            it++;
+            continue; 
+        }
+        if ( it > index + this->range ) { 
+            std::wcout << L"..." << std::endl;
+            break; 
+        }
+        if ( index == it ) {
+            std::wcout << L">  " << item << is_selected << L"  <" << std::endl;
+            current = item;
+        } else {
+            std::wcout << L"   " << item << is_selected << std::endl;
+        }
+        it++;
+    }
+    std::wcout << std::endl;
+    std::wcout << L"Current File/Folder: " << current << L" ";    
 }
 void TerminalExplorer::up(int step) {
     int count = 0;
@@ -311,6 +380,19 @@ void TerminalExplorer::selectFile() {
     if (path.string().compare(".")==0 || path.string().compare("..")==0) return;
     if (path.empty()) return;
     this->selected_files.insert( std::filesystem::absolute(path) );
+}
+void TerminalExplorer::deselectFile() {
+    int index = getIndex(this->currentDir);
+    std::filesystem::path path = getPathFromLine(index);
+    if (path.string().compare(".")==0 || path.string().compare("..")==0) return;
+    if (path.empty()) return;
+    this->selected_files.erase( std::filesystem::absolute(path) );
+}
+bool TerminalExplorer::isLineSelectedItem(int index) {
+    std::filesystem::path path = getPathFromLine(index);
+    if (path.string().compare(".")==0 || path.string().compare("..")==0) return false;
+    if (path.empty()) return false;
+    return this->selected_files.contains( std::filesystem::absolute(path) );
 }
 
 /// END CODEX_termios.h 
