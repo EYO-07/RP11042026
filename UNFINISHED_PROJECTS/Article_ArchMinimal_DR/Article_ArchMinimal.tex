@@ -430,6 +430,14 @@ Se você seguiu a recomendação de não instalar o grub pelo arch-linux, então
 
 Ao reiniciar o seu recém-instalado sistema, você irá entrar no terminal virtual do kernel linux (tty), os terminais virtuais podem ser acessados usando os atalhos de teclado \texttt{ctrl+alt+F1}, \texttt{ctrl+alt+F2} ... \texttt{ctrl+alt+FX}. Cada um dos atalhos é um terminal diferente, você pode utilizar estes atalhos para fazer operações distintas no sistema. É importante saber destes atalhos, pois em caso de falha de um ambiente desktop instalado você pode voltar para a interface inicial tty, permitindo você solucionar os possíveis problemas. Como recomendação, enquanto você estiver fazendo modificações no seu sistema, sempre inicie o sistema operacional pelo terminal tty, pois ele vai permitir você resolver eventuais problemas do seu ambiente gráfico que irão surgir nesta etapa inicial, além disso você terá liberdade de modificar arquivos que podem estar bloqueados no ambiente gráfico (por exemplo, a atualização do cache de fonte). \\
 
+
+% ==============================================================================================
+\section{Configurações Básicas}
+
+\subsection{Configurações de Rede}
+
+\hspace{\baselineskip}
+
 Se você instalou usando hardware wifi incompatível usando \textbf{blacklists} de drivers, você terá que criar um arquivo na pasta \texttt{/etc/modprobe.d/} do seu sistema com os drivers que você bloqueadou durante a instalação. O instalador não configura isso automaticamente: \\
 
 \begin{lstlisting}
@@ -450,10 +458,7 @@ mkinitcpio -P
 sudo reboot
 \end{lstlisting}
 
-% ==============================================================================================
-\section{Configurações Básicas}
-
-\hspace{\baselineskip}
+\vspace{\baselineskip}
 
 O arch-linux segue a filosofia \textbf{kiss} (Keep it Simple, Stupid), seus programas não vão executar tarefas de maneira automática, o sistema não irá assumir que certas configurações sejam adequadas por conta de sua popularidade, você terá que instruir explicitamente e configurar explicitamente o que você quer. Essa filosofia é interessante para manter o sistema mínimo e personalizado. Portanto ao instalar o pacote do \texttt{NetworkManager}, o serviço provavelmente estará inativo, execute o comando \texttt{sudo systemctl enable NetworkManager} para ativar o serviço, este comando registra o serviço do \textbf{NetworkManager} para sempre ser executado ao reiniciar o sistema, portanto somente é necessário executá-lo uma vez. \\
 
@@ -491,6 +496,12 @@ $$ \texttt{sudo pacman -Syu} $$
 
 \vspace{\baselineskip}
 
+Os sistemas de conexão wifi são regulados de maneira diferente dependendo de sua localização. Elas definem as frequências e potência permitidas por dispositivos wifi. Para entrar em conformidade com a legislação, instale o pacote \texttt{sudo pacman -S wireless-regdb}, modifique o arquivo \texttt{/etc/conf.d/wireless-regdom} e descomentando a linha com \texttt{WIRELESS\_REGDOM="BR"} para o caso brasileiro, ou o específico para sua localização. Opcionalmente você pode instalar o pacote iw com o comando \texttt{sudo pacman -Syu iw}. Ao executar o comando \texttt{iw reg get} você pode saber se a configuração do regdom está correta, e você pode configurar o regdom usando \texttt{iw reg set BR}. \\
+
+\subsection{Configurações de Aliases}
+
+\hspace{\baselineskip}
+
 Os comandos linux foram padronizados em um contexto de pouca memória de trabalho e armazenamento, por isso a maior parte dos comandos são sintéticos e acrônimos. Comandos deste tipo são mais difíceis de memorizar, por isso é interessante para o usuário linux aprender a configurar o terminal para aceitar comandos customizados, os chamados \textbf{aliases}, nestes comandos recomendo não seguir o padrão sintético, mas um padrão verboso, fazendo uso da funcionalidade de auto-completar do terminal (acionado ao pressionar \texttt{tab} uma ou duas vezes).\\
 
 Se você seguiu as instruções e criou seu usuário \texttt{wheel} com o argumento \texttt{-m}, então ao executar o comando para listar os arquivos ocultos \texttt{ls -la} do diretório \texttt{home} você vai encontrar três arquivos de configuração: \\
@@ -516,164 +527,417 @@ fi
 Algumas sugestões de aliases que irão ajudar nesta etapa inicial: \\
 
 \begin{lstlisting}
-# .bash_aliases 
-# ... sugestões 
-alias errors='sudo dmesg | grep -iE "error|critical|failed|failure" | tee ~/errors.txt'
+# write it on .bash_aliases 
+alias errors='sudo dmesg -T --level=emerg,alert,crit,err,warn | tee ~/errors.txt'
 alias devices='lspci -k | tee ~/devices.txt'
 alias storage_devices='(sudo blkid && sudo fdisk -l) | tee ~/storage_devices.txt'
 alias mount_points='sudo blkid && sudo lsblk -l'
+alias update_time='timedatectl status && timedatectl set-ntp true'
 alias regenerate_initramfs='sudo mkinitcpio -P'
+alias regenerate_grub_configuration_file='sudo grub-mkconfig -o /boot/grub/grub.cfg'
 alias regenerate_font_cache='fc-cache -f -v'
+alias services='(systemctl list-units --type=service ; systemctl list-units --type=service --user)| tee ~/services.txt'
+alias check_service='sudo systemctl status'
+alias restart_service='sudo systemctl restart'
+alias enable_service='sudo systemctl enable'
+alias pacman_manually_installed='pacman -Qet | tee ~/manually_installed.txt'
+alias pacman_aur_installed='pacman -Qm | tee ~/aur_installed.txt'
+alias pacman_search='pacman -Ss'
+alias pacman_install='sudo pacman -Syu --needed'
+alias pacman_update='sudo pacman -Syu'
+alias pacman_info='pacman -Si'
+alias pacman_orphan='pacman -Qdt'
+alias pacman_remove='sudo pacman -R'
+alias pacman_uninstall='sudo pacman -R'
+alias internet_device_connect='nmcli device connect'
+alias internet_device_disconnect='nmcli device disconnect'
+alias internet_kill_connection='nmcli connection down'
+alias internet_connection_info='nmcli connection show'
+alias internet_delete_connection='nmcli connection delete'
+alias internet_wifi_list='nmcli radio wifi on ; nmcli device wifi list'
+alias internet_wifi_connect='nmcli device wifi connect'
+alias activate='chmod +x'
+alias deactivate='chmod -x'
+alias show_aliases='cat ~/.bash_aliases | grep -iE "alias "'
+alias update_aliases='. ~/.bash_aliases'
+alias edit_aliases='nano ~/.bash_aliases'
 \end{lstlisting}
 
+\vspace{\baselineskip}
 
+Para usar de imediato os aliases você pode executar o comando \texttt{source $\sim$/.bash\_aliases}, com este comando você terá acesso aos aliases criados, como por exemplo: \texttt{show\_aliases} para mostrar todos os aliases que você criou, ou \texttt{show\_aliases | grep 'pacman'} com os aliases relacionados ao gerenciador de pacotes \textbf{pacman}.\\
 
+Outra configuração interessante é a marcação de sintaxe do editor \textbf{nano}, em \textbf{arch-linux} a maior parte dos pacotes obedecem a filosofia \textbf{kiss}, como no caso do \texttt{nano}, que requer a criação do arquivo de configuração \texttt{.nanorc} para conseguir utilizar a marcação de sintaxe. \\
 
+\begin{lstlisting}
+# escreva em ~/.nanorc
+include /usr/share/nano/*.nanorc 
+# ... isso irá importar as configurações do pacote nano 
+\end{lstlisting}
 
+\vspace{\baselineskip}
 
-
-
-
-
-
-
-
+Caso o arquivo \texttt{.bashrc} esteja configurado corretamente, todo novo terminal irá carregar os aliases do arquivo \texttt{.bash\_aliases}. Um dos comandos que recomendo fazer com alguma frequência nessa etapa inicial é o alias \texttt{errors} que irá executar o \texttt{dmesg} para coletar erros do sistema e armazená-los no arquivo \texttt{$\sim$/errors.txt}. Execute e abra o arquivo para verificar as mensagens de erro, nem todos os erros são importantes, se o sistema não estiver instável você pode ignorá-los, porém sempre que possível pesquise na internet por soluções destes erros. 
 
 % ==============================================================================================
 \section{i3+picom - Ambiente Gráfico}
 
+\subsection{Servidor Gráfico X11}
+
+\hspace{\baselineskip}
+
+Crie um script usando o comando \texttt{nano $\sim$/install\_xorg.sh} com o conteúdo abaixo. Esse script irá instalar os componentes essenciais do servidor gráfico X11. Salve (\texttt{ctrl+o}) e execute o comando \texttt{bash $\sim$/install\_xorg.sh}. Atenção ao caractere de quebra de linha \textbackslash, não pode haver espaço após esse caractere. \\
+
 \begin{lstlisting}
-* Quais as opções de servidor gráfico ?
-* Como instalar e usar o servidor gráfico X11 ?
-** Como inicializar o servidor gráfico, rodar programas e sair do servidor xorg ?
+# -- Servidor Gráfico X11
+sudo pacman -Syu --noconfirm --needed \
+    xorg xorg-xinit xorg-xrandr \
+    xorg-xrdb xorg-twm \
+    xorg-apps xterm xorg-xclock \
+    ttf-dejavu ttf-liberation xorg-fonts-misc 
 \end{lstlisting}
 
 \vspace{\baselineskip}
 
-Servidores gráficos em linux são programas fundamentais que permitem com que aplicativos renderizem sua interface sob forma de janelas, botões, ícones e controles e gerencia os sinais de entrada do teclado e do mouse. Em linux temos dois principais servidores gráficos, o servidor legado \textbf{XOrg}, compatível com a maior parte dos hardware, porém obsoleto e com menor desempenho, e o servidor \textbf{Wayland}, mais moderno e rápido, porém com menos suporte a hardwares antigos. Neste tutorial vamos seguir o caminho legado, porém o leitor pode optar posteriormente por outras combinações de servidor gráfico.
+Para inicializar o ambiente gráfico usando o \textbf{xorg}, vamos usar a ferramenta \texttt{startx} do \texttt{xinit}, porém se você tentar executar \texttt{startx} para inicializar, provavelmente o servidor irá retornar uma mensagem de inicialização e voltar para o \texttt{tty}. O motivo é a ausência de um arquivo de configuração para o \texttt{xinit}.
 
-$$ \texttt{sudo apt install xorg dbus-x11} $$
+$$ \texttt{cp /etc/X11/xinit/xinitrc $\sim$/.xinitrc} $$
 
-O comando acima deve ser o suficiente para instalar o \texttt{X11}. O \texttt{dbus-x11} antigamente era instalado como default, mas como sua funcionalidade tem sido substituída em sistemas modernos ele precisa ser instalado para evitar erros de inicialização de alguns aplicativos. Como estamos em uma instalação mínima é interessante abrir aplicativos gráficos recém instalados via terminal para observar mensagens de erro, que podem ser devido a pacotes extras que não foram instalados. \\
+O comando acima copia a versão \texttt{default} de configuração do \texttt{.xinitrc}. Execute-o e depois execute novamente o comando \texttt{startx}. Ao executar o comando você irá entrar no gerenciador básico \texttt{twm}. Esse gerenciador será substituído pelo gerenciador \texttt{i3}, que apesar de também minimalista está sendo ativamente mantido (verifique em github.com/i3/i3).\\
 
 \begin{lstlisting}
-# Inventário [ Servidor Gráfico ] { Linux }
-# 1. apt install xorg ; instala o servidor gráfico X
-# 2. apt install xterm ; emulador de terminal X
-# 3. startx ; inicia manualmente uma sessão gráfica X
-# 4. Ctrl+Alt+Backspace ; atalho do teclado para terminar uma sessão X
+# -- você pode testar instalar alguns programas gráficos
+sudo pacman -S --needed firefox # navegador web
+sudo pacman -S --needed geany # editor de texto e código
+\end{lstlisting}
+
+\subsection{Instalação do Ambiente i3+picom}
+
+\hspace{\baselineskip}
+
+Você pode sair da sessão gráfica usando os atalhos \texttt{ctrl+alt+backspace} ou digitar \texttt{exit} em todos os emuladores de terminal da sessão. De volta ao \texttt{tty} vamos começar a instalação do gerenciador de janelas e o compositor. Crie um outro script de instalação com o comando \texttt{touch $\sim$/install\_i3\_picom.sh} e edite com o \texttt{nano $\sim$/install\_i3\_picom.sh}.\\
+
+\begin{lstlisting}
+# install_i3_picom.sh
+sudo pacman -Syu --noconfirm --needed \
+    i3-wm i3status i3lock dmenu \
+    dex xss-lock network-manager-applet \
+    picom
+# ... não recomendo usar login gráfico em instalação customizada
+# ... especialmente na distribuição arch-linux 
+# sudo pacman -S --noconfirm --needed lightdm lightdm-gtk-greeter
 \end{lstlisting}
 
 \vspace{\baselineskip}
 
-Ao instalar o xorg, o usuário pode começar a usar programas de interface gráfica, mesmo sem um gerenciador de janelas. Você pode testar por exemplo instalar o editor de texto geany. No tty, inicie a sessão gráfica com \texttt{startx}, após isso instale o geany com \texttt{sudo apt install geany} e execute \texttt{geany} para abrir o programa via terminal. Você pode também navegar na internet instalando o firefox com \texttt{sudo apt install firefox-esr} e executando \texttt{firefox} no terminal da sessão gráfica.\\
-
-Caso tenha algum problema com o teclado você pode executar alguns dos comandos abaixo: \\
+Para começar a usar o ambiente \texttt{i3} basta modificar o arquivo \texttt{$\sim$/.xinitrc} recém criado. Você deve substituir as linhas do final:
 
 \begin{lstlisting}
-# Inventário [ Configurações do Teclado ] { Linux, Debian }
-# 1. sudo dpkg-reconfigure keyboard-configuration ; Reconfigura manualmente o teclado.
-# 2. setxkbmap -query ; Mostra as configurações do teclado.
-# 3. setxkbmap br ; Muda o layout do teclado para português brasileiro.
+...
+"$twm" &
+"$xclock" -geometry 50x50-1+1 &
+"$xterm" -geometry 80x50+494+51 &
+"$xterm" -geometry 80x20+494-0 &
+exec "$xterm" -geometry 80x66+0+0 -name login
+\end{lstlisting}
+
+por:
+
+\begin{lstlisting}
+...
+exec i3
+\end{lstlisting}
+
+Com isso sempre que você executar o comando \texttt{startx} no \texttt{tty}, a sessão gráfica irá chamar o gerenciador de janelas \texttt{i3}. Use o inventário abaixo para se acostumar com o ambiente: \\
+
+\begin{lstlisting}
+# Inventário : i3 { Linux }
+# -- novato --
+# 1. MOD+Enter // Abre um novo emulador de terminal
+# 2. MOD+D // Abre o dmenu para busca de apps
+# 3. MOD+<SETAS> // Muda a janela em foco
+# 4. MOD+S // Muda o layout para stack
+# 5. MOD+Shift+Q // Fecha uma janela
+# -- intermediário -- 
+# 1. MOD+E // Alterna layout de vertical ou horizontal
+# 2. MOD+R // Muda o tamanho da janela
+# 3. MOD+Shift+<SETAS> // Muda uma janela de posição
+# -- experiente -- 
+# 1. MOD+<NUMERO> // Alterna entre espaços de trabalho
+# 2. MOD+Shift+<NUMERO> // Move janelas entre os espaços
+# 3. MOD+H // Cria uma árvore de layout horizontal
+# 4. MOD+V // Cria uma árvore de layout vertical
+# 5. MOD+F // Muda para o modo tela cheia
+# 6. MOD+W // Muda para o layout stack com abas
+# 7. MOD+Shift+Space // Alterna modo janela flutuante
+# 8. MOD+Shift+E // Termina a sessão gráfica
 \end{lstlisting}
 
 \vspace{\baselineskip}
 
+Você poderá usar o \texttt{i3} confortavelmente se aprender os comandos de teclado de nível iniciante. O inventário acima foi cuidadosamente escalonado para permitir uma progressão de proficiência, porém não é requerido saber de todos os atalhos para usar de maneira eficiente.\\
+
+Caso você tenha pulado o assistente de configuração do \texttt{i3}, você pode chamá-lo novamente usando o comando no terminal \texttt{i3-config-wizard}. O arquivo de configuração se localiza no diretório \texttt{$\sim$/.config/i3/}, você pode inspecioná-lo com o comando \texttt{nano $\sim$/.config/i3/config}. Por enquanto mantenha as configurações como estão. \\
+
+É interessante também verificar a configuração do teclado, se você estiver usando localização diferente do teclado o ambiente i3 pode assumir configurações incorretas. É interessante configurar ambos via localectl e via setxkbmap, pois eles costumam desconfigurar um ao outro se estiverem diferentes. \\
+
 \begin{lstlisting}
-* Como instalar o gerenciador de janelas i3 ?
-* Quais os arquivos de configuração do i3 ?
-* Como instalar o compositor de janelas picom ?
-* Quais os arquivos de configuração do compositor de janelas picom ? 
+# Inventário : teclado { Linux, X11 }
+# 1. localectl status ; mostra as configurações do teclado 
+# 2. sudo localectl set-x11-keymap br ; configura o teclado com layout padrão brasileiro 
+# 3. setxkbmap -query ; mostra as configurações do layout
+# 4. setxkbmap br ; configura o teclado com padrão brasileiro.
+\end{lstlisting}
+
+\subsection{Drivers de Placa Gráfica}
+
+\hspace{\baselineskip}
+
+Vamos postergar a customização para configurar elementos importantes do seu sistema, como o display dos monitores. Caso você utilize placa gráfica dedicada e esteja usando dois monitores você precisa garantir algumas configurações dependendo do modelo da placa gráfica. Crie um arquivo \texttt{$\sim$/install\_drivers.sh} e coloque o conteúdo abaixo. \\
+
+\begin{lstlisting}
+# -- ~/install_drivers.sh
+sudo pacman -Syu # upgrade global 
+sudo pacman -S --noconfirm --needed linux-firmware 
+# -- 1. firmware intel (cpu)
+# sudo pacman -S --noconfirm --needed intel-ucode
+# sudo pacman -S --noconfirm --needed mesa vulkan-intel
+# -- 2. firmware amd (cpu/gpu)
+# sudo pacman -S --noconfirm --needed amd-ucode
+# sudo pacman -S --noconfirm --needed mesa xf86-video-amdgpu vulkan-radeon
+# -- 3. firmware nvidia 
+# sudo pacman -S --noconfirm --needed linux-headers nvidia-open nvidia-utils nvidia-settings
+# -- pós-instalação 
+# sudo systemctl enable nvidia-suspend.service
+# sudo systemctl enable nvidia-hibernate.service
+# sudo systemctl enable nvidia-resume.service 
 \end{lstlisting}
 
 \vspace{\baselineskip}
 
-Umas das coisas que podem deixar o usuário confuso ao lidar com o gerenciador de janelas \textbf{i3} é que ele não usa nenhum dos arquivos de configuração do \textbf{X11}, portanto mexer nos arquivos de configuração em \texttt{/etc/X11/} podem não ter o efeito desejado ou até entrar em conflito com as configurações do \textbf{i3}. Quando instalar o i3 a lógica de inicialização vai estar na pasta \texttt{/etc/alternatives/} nos links associados ao x-session que irão apontar para executáveis i3. Instale o i3 no tty, saia do X usando o comando exit e execute os comandos:
+Descomente as linhas que correspondem ao dispositivos que você possui, você pode verificar os dispositivos com o comando definido na seção de alias \texttt{devices} e abrir o arquivo \texttt{devices.txt} para consulta. Se você possui dispositivos intel, retire os \texttt{\#} correspondentes, faça o mesmo com os outros dispositivos para seus pacotes correspondentes. Instale com o comando \texttt{bash $\sim$/install\_drivers.sh}, regenere o \texttt{initramfs} com \texttt{sudo mkinitcpio -P} e reinicie o computador.
 
-$$ \texttt{sudo apt install i3} $$
-$$ \texttt{startx} $$
-
-Ao iniciar o X o atalho do x-session vai chamar a execução do i3. A primeira execução do gerenciador i3 é importante para definir a tecla principal do gerenciador (deixe no default como a tecla \texttt{Win} que é a tecla entre o \texttt{ctrl} e \texttt{alt} na maioria dos teclados) e aceite a criação do arquivo de configuração inicial. Caso você tenha rejeitado a criação do arquivo de configuração inicial, basta executar \texttt{i3-config-wizard} no terminal da sessão X. \\
+\subsection{Monitores Estendidos}
 
 \begin{lstlisting}
-# Inventário [ Gerenciador de Janelas i3 ] { Linux Bash }
-# -- terminal -- 
-# 1. apt install i3 ; ...
-# 2. i3lock ; bloqueia o desktop com senha para o usuário.
-# -- atalhos de teclado -- 
-# 1. Win+Shift+e ; fecha a sessão i3.
-# 2. Win+Enter ; abre o emulador padrão de terminal.
-# 3. Win+D ; abre o menu de busca de aplicativos.
-# 4. Win+Setas ; navega entre as janelas abertas.
-# 5. Win+Shift+q ; fecha uma janela.
-# 6. Win+Shift+Setas ; move as janelas de posição.
-# 7. Win+H ; disposição horizontal de janelas.
-# 8. Win+V ; disposição vertical de janelas.
-# 9. Win+S ; muda o layout para o modo stack.
-# 10. Win+W ; muda o layout para o modo tabs.
-# 11. Win+E ; alterna o layout entre vertical e horizontal.
-# 12. Win+Número ; alterna entre áreas de trabalho.
-# 13. Win+Shift+Número ; move janelas entre áreas de trabalho. 
-# 14. Win+F ; alterna o modo tela cheia.
-# 15. Win+Shift+Espaço ; alterna para o modo janela flutuante.
-# 16. Win+Espaço ; alterna o foco entre janela flutuante e janelas em blocos.
-# 17. Win+R ; modo para mudar tamanho dos blocos.
+# -- script para configuração de monitores estendidos 
+# ... use este script depois de inicializado a sessão gráfica
+# ... use o comando 'xrandr' para saber os nomes e modifique-os abaixo
+DP1='NOME1'
+DP2='NOME2'
+# ... escolha uma das configurações para testar
+xrandr --output ${DP1} --primary --auto --output ${DP2} --auto --right-of ${DP1}
+xrandr --output ${DP1} --primary --auto --output ${DP2} --auto --left-of ${DP1}
 \end{lstlisting}
 
 \vspace{\baselineskip}
 
-Ao iniciar o i3 você irá notar que somente o monitor da placa mãe é reconhecido. Para que ele reconheça o monitor da placa de vídeo é interessante você instalar primeiro os drivers proprietários da sua placa de vídeo. Você terá que editar o arquivo \texttt{/etc/apt/sources.list} e habilitar as versões \texttt{non-free}, \texttt{contrib}, \texttt{non-free-firmware}. \\
+A configuração de monitores estendidos pode dar um pouco de dor de cabeça em placas gráficas \textbf{nvidia} ou quando temos mais de uma gpu (por exemplo, gpu integrado e a gpu dedicada de um notebook). Para ativar a funcionalidade de monitor estendido para placas gráficas nvidia é necessário que a variável do kernel \texttt{nvidia\_drm.modeset=1}. Verifique com o comando \texttt{cat /sys/module/nvidia\_drm/parameters/modeset}. Caso retorne 1 ou \texttt{Y} então ele está ativo.\\
 
-Coloque as palavras-chave (\texttt{non-free}, \texttt{contrib}, \texttt{non-free-firmware}) em cada linha não comentada de forma a ficar mais ou menos como abaixo:\\
+Caso não retorne nada ou retorne \texttt{N} será necessário você mudar o parâmetro de inicialização do kernel. Vamos assumir que você esteja utilizando o grub para inicialização e que o arch-linux não seja o sistema principal (como recomendado anteriormente). A abordagem é regenerar a configuração do arquivo \texttt{/boot/grub/grub.cfg}. Lembre-se, não se edita diretamente o arquivo \texttt{/boot/grub/grub.cfg}, qualquer erro de sintaxe pode causar falha na inicialização do sistema, a abordagem é sempre editar os arquivos auxiliares: \\
 
 \begin{lstlisting}
-deb http://deb.debian.org/debian/ trixie main non-free-firmware contrib non-free
-deb-src http://deb.debian.org/debian/ trixie main non-free-firmware contrib non-free
-
-deb http://security.debian.org/debian-security trixie-security main non-free-firmware contrib non-free
-deb-src http://security.debian.org/debian-security trixie-security main non-free-firmware contrib non-free
-
-# trixie-updates, to get updates before a point release is made;
-# see https://www.debian.org/doc/manuals/debian-reference/ch02.en.html#_updates_and_backports
-deb http://deb.debian.org/debian/ trixie-updates main non-free-firmware contrib non-free
-deb-src http://deb.debian.org/debian/ trixie-updates main non-free-firmware contrib non-free
+1. /boot/grub/grub.cfg ; arquivo auto-gerado, não edite diretamente
+2. /etc/default/grub ; arquivo utilizado para configurar o grub 
+3. /etc/grub.d/ ; scripts usados para configurar o grub 
 \end{lstlisting}
 
 \vspace{\baselineskip}
 
-Estas versões de repositório contém drivers proprietários requeridos para instalação de drivers gráficos e firmwares específicos de outros componentes de hardware.\\
+O arquivo (2) é o arquivo que você pode fazer edição de maneira segura. Abra o nano com privilégio de admnistrador \texttt{sudo nano /etc/default/grub}:
 
 \begin{lstlisting}
-* Como instalar os drivers proprietários da nvidia, amd e intel ?
-* Como configurar dois monitores com tela estendida em X11 ? 
+# GRUB boot loader configuration
+
+GRUB_DEFAULT=0
+GRUB_TIMEOUT=5
+GRUB_DISTRIBUTOR="Arch"
+GRUB_CMDLINE_LINUX_DEFAULT="quiet"
+GRUB_CMDLINE_LINUX=""
+
+...
 \end{lstlisting}
 
 \vspace{\baselineskip}
 
-Instale os pacotes \texttt{firmware-linux}, \texttt{firmware-linux-nonfree}, \texttt{firmware-misc-nonfree} e os drivers da sua placa de vídeo. Se você utilizar placas de vídeo da \texttt{nvidia} você vai precisar instalar os headers específicos para a sua versão de kernel, caso contrário o driver não irá funcionar. Instale o nvidia-detect e execute \texttt{nvidia-detect} para o software detectar automaticamente a melhor versão de driver, siga as instruções de instalação sugeridas e depois execute \texttt{nvidia-settings} para checar por mensagens de erro ou modificar configurações.\\
+Somente altere este arquivo no caso do \texttt{nvidia\_drm.modeset} estar desativado, nas versões recentes do arch-linux essa variável geralmente vem ativada, porém em caso de mudanças (que podem ocorrer com alguma frequência no ecossistema arch), você deve alterar a variável \texttt{GRUB\_CMDLINE\_LINUX\_DEFAULT} adicionando mais um argumento dentro das aspas \texttt{nvidia-drm.modeset=1}.
 
 \begin{lstlisting}
-# Inventário [ Drivers Gráficos ] { Linux, Debian }
-# 1. apt install firmware-linux firmware-linux-nonfree firmware-misc-nonfree
-# 2. apt install linux-headers-$(uname -r) nvidia-detect ; programa nvidia para detectar a placa gráfica.
-# 3. apt install nvidia-driver ; instala o driver nvidia, porém siga a recomendação do nvidia-detect antes.
-# 4. apt install xserver-xorg-video-amdgpu firmware-amd-graphics ; instala driver gráfico da amd.
-# 5. xrandr --listproviders ; lista as saídas de vídeo disponíveis.
-# 6. xrandr --query ; lista completa sobre as saídas de vídeo e suas configurações.
-# 7. xrandr --setprovideroutputsource provider_fonte provider_saida ; configura o vídeo de saída para renderizar o resultado processado do provedor fonte, geralmente uma placa gráfica dedicada. Usado para o modo de tela estendida. 
-# 8. xrandr --output DISPLAY1 --primary --auto --output DISPLAY2 --auto --right-of DISPLAY1 ; configura o modo de tela estendida com o DISPLAY2 à direita do DISPLAY1.
+...
+GRUB_CMDLINE_LINUX_DEFAULT="quiet nvidia-drm.modeset=1"
+...
 \end{lstlisting}
 
 \vspace{\baselineskip}
 
-Ao instalar componentes fundamentais como drivers é interessante você executar \texttt{sudo reboot} para reiniciar o sistema antes de prosseguir por novas modificações. \\
+Basta agora regenerar o arquivo de configuração do grub neste sistema e no sistema principal, use o comando  \texttt{regenerate\_grub\_configuration\_file} definido no alias recomendado ou use diretamente \texttt{grub-mkconfig -o /boot/grub/grub.cfg} neste sistema. Após isso, entre no seu sistema principal e faça o update do grub. Supondo que o os-prober esteja ativo, o comando de update do sistema principal irá encontrar o arch-linux e inserir corretamente o menu do sistema arch no grub.\\
 
-Se você estiver ainda testando em máquina virtual pule a configuração de dois monitores. Para configurar dois monitores como visualização estendida, depois de reiniciado e iniciado a sessão do \texttt{i3}, execute o \texttt{xrandr --listproviders} para listar os provedores gráficos. Deverá aparecer números associados para os monitores conectados, estes números serão usados no comando \texttt{xrandr --setprovideroutputsource N1 N2}, sendo \texttt{N1} o provedor da placa gráfica e \texttt{N2} o provedor que irá receber os dados da placa gráfica, geralente o monitor integrado ou a saída de vídeo da placa-mãe.\\
+Ainda no sistema principal, você pode optar por desativar a detecção automática (que se torna lenta, quando se adiciona parâmetros de kernel customizados) e usar os blocos \texttt{menuentry} e \texttt{submenuentry} gerados do update do grub. \\
 
-Feito isso agora basta executar o comando \texttt{xrandr --query} para listar os nomes dos monitores e executar:
-$$ \texttt{xrandr --output D1 --primary --auto --output D2 --auto --right-of D1} $$
+Caso queira desativar o \texttt{os-prober} (Não recomendo neste momento inicial) você deve configurar a variável do arquivo \texttt{/etc/default/grub} do sistema principal \texttt{GRUB\_DISABLE\_OS\_PROBER}, basta colocar como \texttt{true} ou colocar \# para torná-lo um comentário. Após isso você deve editar o arquivo \texttt{/etc/grub.d/40\_custom} e adicionar os menus e submenus conforme sua escolha:\\
 
-O \texttt{D1} é o monitor principal, \texttt{D2} é o monitor secundário. Na disposição acima o monitor secundário está à direita do principal, caso não seja esta a disposição, basta substituir \texttt{--right-of} por \texttt{--left-of} para configurar corretamente.\\
+\begin{lstlisting}
+#!/bin/sh
+exec tail -n +3 $0
+# This file provides an easy way to add custom menu entries.  Simply type the
+# menu entries you want to add after this comment.  Be careful not to change
+# the 'exec tail' line above.
+# ... coloque os blocos menuentry e submenuentry aqui!
+### END /etc/grub.d/40_custom ###
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Você terá que pegar os blocos \texttt{menuentry} do arquivo \texttt{/boot/grub/grub.cfg} gerados anteriormente com o os-prober ativo (evite tentar customizar estes blocos diretamente). Lembre-se de não alterar a parte inicial e a parte final do arquivo \texttt{40\_custom} como no exemplo abaixo:\\
+
+\begin{lstlisting}
+#!/bin/sh
+exec tail -n +3 $0
+# This file provides an easy way to add custom menu entries.  Simply type the
+# menu entries you want to add after this comment.  Be careful not to change
+# the 'exec tail' line above.
+menuentry 'Arch Linux (on /dev/sda5)' --class arch --class gnu-linux --class gnu --class os $menuentry_id_option 'osprober-gnulinux-simple-d268ee52-21a5-4ba8-887c-c643e62b5dde' {
+	insmod part_msdos
+	insmod ext2
+	set root='hd0,msdos5'
+	if [ x$feature_platform_search_hint = xy ]; then
+	  search --no-floppy --fs-uuid --set=root --hint-bios=hd0,msdos5 --hint-efi=hd0,msdos5 --hint-baremetal=ahci0,msdos5  d268ee52-21a5-4ba8-887c-c643e62b5dde
+	else
+	  search --no-floppy --fs-uuid --set=root d268ee52-21a5-4ba8-887c-c643e62b5dde
+	fi
+	linux /boot/vmlinuz-linux root=UUID=d268ee52-21a5-4ba8-887c-c643e62b5dde rw loglevel=3 quiet lsm=landlock,lockdown,yama,integrity,apparmor,bpf
+	initrd /boot/intel-ucode.img /boot/amd-ucode.img /boot/initramfs-linux.img
+}
+### END /etc/grub.d/40_custom ###
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Feito isso, basta agora regenerar o grub para aplicar o menu grub customizado. Se atente a mensagens de erro, lembre-se que sem o \texttt{grub.cfg} o grub não irá inicializar os sistemas operacionais.\\
+
+Voltando a tarefa de configurar os monitores com placa gráfica nvidia, você deve entrar na sessão gráfica e executar os comandos abaixo:\\
+
+\begin{lstlisting}
+# -- configuração de monitores estendidos nvidia 
+# lista as saídas de vídeo 
+# ... procure pelas saídas conectadas 
+xrandr --query
+# lista os números das saídas disponíveis 
+# ... anote os números dos respectivos monitores
+xrandr --listproviders 
+# configura o renderizador
+# ... coloque o provider com o número correspondente
+# ... a gpu dedicada
+xrandr --setprovideroutputsource numero_fonte numero_saida
+# ... basta agora executar o comando abaixo 
+# ... coloque os respectivos nomes N1 N2 do xrandr --query 
+xrandr --output N1 --primary --auto --output N2 --auto --right-of N1
+
+\end{lstlisting}
+
+\subsection{Customização i3+picom}
+
+\hspace{\baselineskip}
+
+Os guias oficiais do i3 se encontram disponíveis em \texttt{https://i3wm.org/docs/userguide.html} para as configurações do i3 e \texttt{https://i3wm.org/docs/i3status.html} para as configurações do i3status. \\
+
+\begin{lstlisting}
+Inventário : arquivos de configuração {i3, picom}
+1. ~/.config/i3/config ; crie com o comando i3-config-wizard
+2. ~/.config/i3status/config ; copie de /etc/i3status.conf 
+3. ~/.config/picom/picom.conf ; copie de /etc/xdg/picom.conf
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+O arquivo (1) é o arquivo de configuração principal do i3, (2) é o arquivo de configuração da barra de status e o (3) são as configurações do compositor picom. Como personalização é pessoal por definição, o que será mostrado aqui deve ser visto como uma sugestão e um template, porém não espere customizações muito elaboradas no i3, i3+picom é um setup minimalista. \\
+
+A primeira parte que considero mais interessante de ser customizada é a barra de status, pois ela pode mostrar informações úteis do seu sistema sem você precisar acessar programas de interface, por exemplo, status de rede, status de vpn, temperatura do processador, uso de ram, uso de espaço em disco, etc.\\
+
+Crie o arquivo \texttt{$\sim$/.config/i3status/config} ou em qualquer outro lugar e depois execute:
+
+$$\texttt{cat /etc/i3status.conf >> $\sim$/.config/i3status/config}$$
+
+Isso irá copiar as configurações padrão para o seu arquivo de configuração de usuário. \\
+
+\begin{lstlisting}
+# Versão Mínima ~/.config/i3status/config
+
+# -- configurações gerais
+general {
+    colors = true # mostrar cores
+    interval = 5 # intervalo de atualização em segundos
+}
+
+# -- configura a ordem de display das seções
+order += "disk /"
+order += "tztime local" # nome do bloco entre aspas
+
+# -- configurações das seções 
+# ... os blocos não precisam estar em ordem 
+# ... bloco tztime local para display de data e hora
+tztime local { 
+    format = "%Y-%m-%d %H:%M:%S"
+}
+# ... bloco uso do hd/ssd
+disk "/" {
+    format = "%used (%percentage_used)"
+}
+\end{lstlisting} 
+
+Os blocos mais fáceis de inserir são os que não requerem buscar caminhos de diretório específicos. Como exemplo temos os blocos de conexão de rede e memória: \\
+
+\begin{lstlisting}
+# bloco de conexão sem fio 
+order += "wireless _first_"
+wireless _first_ {
+    format_up = "(%quality )"
+    format_down = "( - )"
+}
+# bloco de internet 
+order += "ethernet _first_"
+ethernet _first_ {
+    format_up = "[ %speed ]"
+    format_down = "[ - ]"
+}
+# bloco de uso de memória 
+order += "memory"
+memory {
+    format = "%used (%percentage_used)"
+    threshold_degraded = "10%"
+    format_degraded = "MEMORY < %available"
+}
+\end{lstlisting}
+
+\vspace{\baselineskip}
+
+Porém para os outros blocos, como por exemplo, a temperatura e uso de cpu, pode variar conforme o hardware. Em lin
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
 
 \begin{lstlisting}
 # Sugestão de Aliases
